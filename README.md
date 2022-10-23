@@ -8,7 +8,7 @@ Build a functional application using all sorts of tools and technologies.  Use i
 
 Build all the following, run in docker with COMPOSE:
 
-* DynamoDB
+* -DynamoDB-
 * ExpressJS API server
 * React application
 * Other containers
