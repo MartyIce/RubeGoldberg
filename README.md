@@ -12,8 +12,8 @@ Build all the following, run in docker with COMPOSE:
 * ExpressJS API server
 * React application
 * Other containers
-** Rails API
-** .Net API
-** MongoDB
+  * Rails API
+  * .Net API
+  * MongoDB
 * Other front ends
-** VueJS
+  * VueJS
