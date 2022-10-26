@@ -11,6 +11,7 @@ Build all the following, run in docker with COMPOSE:
 * ~~DynamoDB~~
 ![image](https://user-images.githubusercontent.com/5083039/197421934-996e0c9a-b06d-4225-bf59-e9b6041a5f62.png)
 * ExpressJS API server
+  * Works running npm locally, aws config issues in docker compose
 * React application
 * Other containers
   * Rails API
