@@ -17,3 +17,11 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     command: npm start
+  express-api:
+    container_name: express-api
+    build:
+      context: express-api/.
+      dockerfile: Dockerfile
+    ports:
+      - 3002:3000
+    command: npm start
