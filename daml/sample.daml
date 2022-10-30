@@ -1,0 +1,149 @@
+-- manufacturer creates items, is owner
+-- shipper takes custody with warehouse indicated as eventual location
+    -- include approve/reject
+-- warehouse takes custody
+    -- include approve/reject
+-- warehouse worker shares custody with warehouse
+    -- include approve/reject
+-- warehouse worker transfers to location within warehouse
+    -- customer purchases, becomes owner, manufacturer/owner sign
+-- warehouse worker transfers to shipping bay
+-- warehouse worker transfers to shipper
+-- shipper takes custody
+    -- include approve/reject
+-- purchasing customer takes custody
+    -- include approve/reject
+-- warehouse can measure income from a given product sku, and also measure their cost of storage
+
+template Item 
+  with
+    manufacturer: Party
+    owner: Party
+    custodian: Party
+    sku: Text 
+    description: Text 
+  where
+    signatory manufacturer, owner, custodian -- Obligation 
+
+    observer manufacturer, owner, custodian
+
+    controller owner can
+      TransferOwnership: ContractId TransferProposal
+        with 
+          newOwner: Party
+        do 
+          create TransferProposal 
+            with 
+              item = this
+              newOwner 
+
+      TransferCustody: ContractId CustodyProposal
+        with 
+          newCustodian: Party
+        do 
+          create CustodyProposal 
+            with 
+              item = this 
+              newCustodian
+
+      UpdateDescription: ContractId Item
+        with 
+          newDescription: Text
+        do 
+          create this with name = newName
+
+    controller custodian can 
+      ClaimDelivery: ContractId CustodyProposal
+        do 
+          create CustodyProposal
+            with 
+              item = this
+              newCustodian = owner
+
+template CustodyProposal
+  with 
+    item: item 
+    newCustodian: Party 
+  where 
+    signatory item.owner, item.custodian, item.manufacturer
+
+    controller newCustodian can 
+      AcceptCustody: ContractId item 
+        do 
+          create item with custodian = newCustodian
+
+      RejectCustody: ContractId item
+        do 
+          create item 
+
+template TransferProposal
+  with
+    item: item
+    newOwner: Party 
+  where 
+    signatory item.manufacturer, item.owner, item.custodian
+
+    controller newOwner can
+      AcceptOwnership: ContractId item
+        do 
+          create item with owner = newOwner 
+        
+      RejectOwnership: ContractId item
+        do
+          create item 
+
+template ManufacturerRole
+  with 
+    manufacturer: Party
+    operator: Party 
+  where 
+    signatory operator
+
+    controller manufacturer can 
+      nonconsuming Manufacture: ContractId item
+        with 
+          sku: Text
+          description: Text
+        do 
+          create item with 
+            manufacturer
+            owner = manufacturer
+            custodian = manufacturer
+            sku
+            description
+
+test = scenario do 
+  feadship <- getParty "Feadship"
+  larry <- getParty "Larry"
+  shipper <- getParty "Shipper"
+
+  item <- submit feadship do 
+    create item 
+      with 
+        manufacturer = feadship 
+        owner = feadship 
+        custodian = feadship 
+        sku = "Musashi"
+
+  prop <- submit feadship do 
+    exercise item TransferOwnership
+      with newOwner = larry
+
+  item <- submit larry do 
+    exercise prop AcceptOwnership
+
+  prop <- submit larry do
+    exercise item TransferCustody
+      with newCustodian = shipper 
+
+  item <- submit shipper do
+    exercise prop AcceptCustody
+
+  prop <- submit shipper do
+    exercise item ClaimDelivery
+
+  submit larry do 
+    exercise prop AcceptCustody
+
+  return ()
+Footer
