@@ -24,4 +24,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - 3002:3000
-    command: npm start
+    volumes:
+        - ./express-api:/app/
+        - nodemodules:/app/node_modules
+    command: npm run dev:watch
+volumes:
+  nodemodules: {}
