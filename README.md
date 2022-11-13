@@ -30,6 +30,7 @@ Build all the following, run in docker with COMPOSE:
   * ExpressJS - run "npm start" within express-api folder.  Because this is OUTSIDE docker, it will serve to port 3000.
 * Multiple containers - TODO
 * Docker Compose - run the whole shebang from root with "docker compose up"
+  * Because react is running WITHIN docker, it will serve to port 3001
   * Because express-api is running WITHIN docker, it will serve to port 3002
 
 ### Where are my changes?
