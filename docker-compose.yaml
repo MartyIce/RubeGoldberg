@@ -9,9 +9,9 @@ services:
     build:
       context: react-admin-ui/.
       dockerfile: Dockerfile
-#    volumes:
-#      - '.:/app'
-#      - '/app/node_modules'
+    volumes:
+      - './react-admin-ui:/app'
+      - './react-admin-ui/node_modules:/app/node_modules'
     ports:
       - 3001:3000
     environment:
