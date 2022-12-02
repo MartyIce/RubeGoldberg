@@ -1,3 +1,6 @@
+# TODO - Security - only accept connections on a specific interface (eg, IP:Port)
+# TODO - Security - mount volumes read only?
+
 version: "3.9"  # optional since v1.27.0
 services:
   dynamodb:

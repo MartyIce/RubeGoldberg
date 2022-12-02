@@ -2,7 +2,7 @@
 # docker run --rm -p 3002:3000 express-api npm start
 
 # pull official base image
-FROM node:13.12.0-alpine
+FROM node:19-alpine3.15
 
 # set working directory
 WORKDIR /app

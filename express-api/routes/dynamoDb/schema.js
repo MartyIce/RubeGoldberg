@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var { ddbClient } = require('../dynamodb/ddbClient');
+var { ddbClient } = require('../../dynamodb/ddbClient');
 const AWSDynamoDb = require("@aws-sdk/client-dynamodb");
 
 // Another way:
