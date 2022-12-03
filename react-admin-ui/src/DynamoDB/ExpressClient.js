@@ -1,5 +1,9 @@
 class ExpressClient {
 
+    constructor() {
+      this.ch18Root = "http://localhost:3002/dynamodb/ch18/sessions"
+    }
+
     jsonHeaders = {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
@@ -28,37 +32,41 @@ class ExpressClient {
             body: JSON.stringify({ tableName: tableName})
           })
     };
-    getItems = (tableName) => {
-      return fetch("http://localhost:3002/dynamodb/items/list", {
-        method: 'POST',
-        headers: this.jsonHeaders,
-        body: JSON.stringify({ tableName: tableName})
+
+    // Ch 18 - sesions
+    getSessions = () => {
+      return fetch(this.ch18Root, {
+        method: 'GET',
+        headers: this.jsonHeaders
       });
     };
-    postItem = (tableName, item, conditionalExpression) => {
-      return fetch("http://localhost:3002/dynamodb/items", {
+    postSession = (session) => {
+      return fetch(this.ch18Root, {
         method: 'POST',
         headers: this.jsonHeaders,
         body: JSON.stringify(
           { 
-            tableName: tableName,
-            item: item,
-            conditionExpression: conditionalExpression
+            session: session,
           })
       });
     };
-    queryItems = (tableName, keyConditionExpression, filterExpression, expressionAttributeNames, expressionAttributeValues) => {
-      return fetch("http://localhost:3002/dynamodb/items/query", {
+    querySessions = (keyConditionExpression, filterExpression, expressionAttributeNames, expressionAttributeValues) => {
+      return fetch(`${this.ch18Root}/query`, {
         method: 'POST',
         headers: this.jsonHeaders,
         body: JSON.stringify(
           { 
-            tableName: tableName,
             keyConditionExpression: keyConditionExpression,
             filterExpression: filterExpression,
             expressionAttributeNames: expressionAttributeNames,
             expressionAttributeValues: expressionAttributeValues
           })
+      });
+    };
+    getUserSessions = (username) => {
+      return fetch(`${this.ch18Root}/${username}`, {
+        method: 'GET',
+        headers: this.jsonHeaders,        
       });
     };
 }

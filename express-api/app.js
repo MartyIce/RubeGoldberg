@@ -7,7 +7,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var dynamodbTablesRouter = require('./routes/dynamoDb/schema');
-var dynamodbExamplesRouter = require('./routes/dynamoDb/examples');
+var ch18SessionRouter = require('./routes/dynamoDb/ch18.session');
 
 // Migration
 let SimpleMigrator = require('./migration/simpleMigrator');
@@ -30,6 +30,6 @@ app.use(cors())
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/dynamodb/tables', dynamodbTablesRouter);
-app.use('/dynamodb/items', dynamodbExamplesRouter);
+app.use('/dynamodb/ch18/sessions', ch18SessionRouter);
 
 module.exports = app;

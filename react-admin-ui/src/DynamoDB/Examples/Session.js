@@ -3,6 +3,9 @@ import ExpressClient from "../ExpressClient.js";
 import { Formik, Form, Field } from 'formik';
 const { v4: uuidv4 } = require('uuid');
 
+// TODO - add this to CSS
+const inputClassName = "mt-0 px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black";
+
 class SessionExample extends React.Component {
   expressClient = new ExpressClient();
 
@@ -17,7 +20,7 @@ class SessionExample extends React.Component {
   }
 
   refreshItems = () => {
-    this.expressClient.getItems('SessionStore')
+    this.expressClient.getSessions()
       .then(res => res.json())
       .then(res => {
         if (res.Items) {
@@ -43,7 +46,7 @@ class SessionExample extends React.Component {
       "ExpiresAt": { "S": expires_at },
       "TTL": { "N": expires_at.getTime() }
     }
-    return this.expressClient.postItem("SessionStore", item, "attribute_not_exists(SessionToken)")
+    return this.expressClient.postSession(item)
       .then(async res => {
         let responseBody = await res.json();
         console.log(responseBody);
@@ -58,8 +61,7 @@ class SessionExample extends React.Component {
   findSession(sessionToken) {
     this.setState({ errorText: '' });
 
-    return this.expressClient.queryItems(
-      "SessionStore",
+    return this.expressClient.querySessions(
       "#token = :token",
       "#ttl >= :epoch",
       {
@@ -84,8 +86,44 @@ class SessionExample extends React.Component {
       })
   }
 
+  getUserSessions(username) {
+    this.setState({ errorText: '' });
+
+    return this.expressClient.getUserSessions(username)
+      .then(async res => {
+        let responseBody = await res.json();
+        console.log(responseBody);
+        if (res.status !== 200) {
+          this.setState({ errorText: JSON.stringify(responseBody) });
+        } else {
+          console.log(responseBody);
+        }
+      })
+      .catch(async err => {
+        console.log(err);
+      })
+  }
+
   genUuid() {
     this.setState({ sessionToken: uuidv4() });
+  }
+
+  input(label, name, addlElements) {
+    return <label className="block">
+      <span className="text-gray-700">{label}</span>
+      <div className="block w-full">
+        <Field type="text" name={name} className={inputClassName} />
+        {addlElements && addlElements()}
+      </div>
+    </label>;
+  }
+
+  submitBtn(isSubmitting) {
+    return <div>
+      <button type="submit" disabled={isSubmitting} className="btn btn-blue">
+        Submit
+      </button>
+    </div>
   }
 
   render() {
@@ -123,20 +161,15 @@ class SessionExample extends React.Component {
           >
 
             {({ isSubmitting }) => (
-              <Form>
-                <label htmlFor="ttl">TTL:</label>
-                <Field type="text" name="ttl" /><br />
-                <label htmlFor="username">Username:</label>
-                <Field type="text" name="username" /><br />
-                <label htmlFor="sessionToken">Session Token:</label>
-                <Field type="text" name="sessionToken" />
-                <button className="btn btn-blue" type="button" onClick={() => this.genUuid()}>
-                  Generate
-                </button>
-                <br />
-                <button type="submit" disabled={isSubmitting} className="btn btn-blue">
-                  Submit
-                </button>
+              <Form className="grid grid-cols-1 gap-6">
+                {this.input('TTL', 'ttl')}
+                {this.input('Username', 'username')}
+                {this.input('Session Token', 'sessionToken', () => {
+                  return <button className="btn btn-blue" type="button" onClick={() => this.genUuid()}>
+                    Generate
+                  </button>
+                })}
+                {this.submitBtn(isSubmitting)}
               </Form>
             )}
           </Formik>
@@ -157,13 +190,32 @@ class SessionExample extends React.Component {
           >
 
             {({ isSubmitting }) => (
-              <Form>
-                <label htmlFor="sessionToken">Session Token:</label>
-                <Field type="text" name="sessionToken" />
-                <br />
-                <button type="submit" disabled={isSubmitting} className="btn btn-blue">
-                  Submit
-                </button>
+              <Form className="grid grid-cols-1 gap-6">
+                {this.input('Session Token', 'sessionToken')}
+                {this.submitBtn(isSubmitting)}
+              </Form>
+            )}
+          </Formik>
+        </div>
+
+        <div className="pt-4">
+          <div className="text-xl">User Sessions:</div>
+          <Formik
+            initialValues={{ username: '' }}
+            enableReinitialize={true}
+            onSubmit={(values, { setSubmitting }) => {
+              this.getUserSessions(values.username).then(() => {
+                setSubmitting(false);
+              }).catch(() => {
+                setSubmitting(false);
+              });
+            }}
+          >
+
+            {({ isSubmitting }) => (
+              <Form className="grid grid-cols-1 gap-6">
+                {this.input('Username', 'username')}
+                {this.submitBtn(isSubmitting)}
               </Form>
             )}
           </Formik>
