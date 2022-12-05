@@ -1,6 +1,6 @@
 import React from "react";
 import ExpressClient from "../ExpressClient.js";
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field, handleChange } from 'formik';
 const { v4: uuidv4 } = require('uuid');
 
 // TODO - add this to CSS
@@ -13,6 +13,7 @@ class SessionExample extends React.Component {
     super(props);
     this.state = {
       items: [],
+      username: '',
       sessionToken: '',
       errorText: ''
     };
@@ -87,14 +88,14 @@ class SessionExample extends React.Component {
   }
 
   getUserSessions(username) {
-    this.setState({ errorText: '' });
+    this.setState({ ...this.state, errorText: '' });
 
     return this.expressClient.getUserSessions(username)
       .then(async res => {
         let responseBody = await res.json();
         console.log(responseBody);
         if (res.status !== 200) {
-          this.setState({ errorText: JSON.stringify(responseBody) });
+          this.setState({ ...this.state, errorText: JSON.stringify(responseBody) });
         } else {
           console.log(responseBody);
         }
@@ -105,8 +106,9 @@ class SessionExample extends React.Component {
   }
 
   genUuid() {
-    this.setState({ sessionToken: uuidv4() });
+    this.setState({ ...this.state, sessionToken: uuidv4() });
   }
+
 
   input(label, name, addlElements) {
     return <label className="block">
@@ -149,14 +151,18 @@ class SessionExample extends React.Component {
         <div className="pt-4">
           <div className="text-xl">Create Session:</div>
           <Formik
-            initialValues={{ username: '', sessionToken: this.state.sessionToken, ttl: 604800 }}
+            initialValues={{ username: this.state.username, sessionToken: this.state.sessionToken, ttl: 604800 }}
             enableReinitialize={true}
+            validateOnChange={true}
             onSubmit={(values, { setSubmitting }) => {
               this.createSession(values.username, values.sessionToken, values.ttl).then(() => {
                 setSubmitting(false);
               }).catch(() => {
                 setSubmitting(false);
               });
+            }}
+            validate={(e) => {
+              this.setState( { ...this.state,  ...e })
             }}
           >
 
