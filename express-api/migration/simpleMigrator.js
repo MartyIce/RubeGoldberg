@@ -20,13 +20,20 @@ const SimpleMigrator = class {
         const templatesDir = process.cwd() + '/migration/templates';
         const files = await (await fs.promises.readdir(templatesDir)).filter(file => path.extname(file).toLowerCase() === '.json');
 
+        const listTables = new AWSDynamoDb.ListTablesCommand({});
+        const tables = await ddbClient.send(listTables);
+
         for( const file of files ) {
             const fromPath = path.join( templatesDir, file );
             let rawdata = fs.readFileSync(fromPath);
-            let jsonData = JSON.parse(rawdata);
-
-            const createTable = new AWSDynamoDb.CreateTableCommand(jsonData);
-            await ddbClient.send(createTable, (err, data) => execute(err, data));
+            let jsonData = JSON.parse(rawdata);          
+            if(tables.TableNames.indexOf(jsonData['TableName']) >= 0) {
+              console.log(`Table '${jsonData['TableName']}' already exists, skipping`);
+            }
+            else {
+              const createTable = new AWSDynamoDb.CreateTableCommand(jsonData);
+              await ddbClient.send(createTable, (err, data) => execute(err, data));
+            }
         }
 
     }

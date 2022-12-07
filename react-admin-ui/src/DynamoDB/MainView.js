@@ -1,6 +1,6 @@
 import React from "react";
 import TableList from "./TableList.js";
-import SessionExample from "./Examples/Session.js";
+import SessionExample from "./Examples/Session/Main.js";
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 
 class MainView extends React.Component {

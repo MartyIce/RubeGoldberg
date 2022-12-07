@@ -62,9 +62,7 @@ router.post('/query', async function (req, res, next) {
   }
 });
 
-// Get Sessions by username
-router.get('/:username', async function (req, res, next) {
-
+const queryByUsername = (username, exec) => {
   const queryParams = {
     TableName: tableName,
     IndexName: "Username-index",
@@ -73,13 +71,19 @@ router.get('/:username', async function (req, res, next) {
     "#username": "Username"
     },
     ExpressionAttributeValues: {
-    ":username": { "S": req.params.username }
+    ":username": { "S": username }
     }    
   }
-  console.log(`queryParams: ${JSON.stringify(queryParams)}`);
   const queryItems = new AWSDynamoDb.QueryCommand(queryParams);
+  console.log("invoking ddbClient.send")
+  return ddbClient.send(queryItems, exec);
+}
+
+// Get Sessions by username
+router.get('/:username', async function (req, res, next) {
+
   try {
-    await ddbClient.send(queryItems, (err, data) => execute(err, data, res));
+    await queryByUsername(req.params.username, (err, data) => execute(err, data, res))
   }  
   catch (err) {
     res.status(500)
@@ -89,23 +93,15 @@ router.get('/:username', async function (req, res, next) {
 
 // Delete Sessions by username
 router.delete('/:username', async function (req, res, next) {
-
-  const queryParams = {
-    TableName: tableName,
-    IndexName: "Username-index",
-    KeyConditionExpression: "#username = :username",
-    ExpressionAttributeNames: {
-    "#username": "Username"
-    },
-    ExpressionAttributeValues: {
-    ":username": { "S": req.params.username }
-    }    
-  }
-
-  const queryItems = new AWSDynamoDb.QueryCommand(queryParams);
   try {
-    await ddbClient.send(queryItems, (err, data) => execute(err, data, res));
-    // TODO
+    console.log(`invoking queryByUsername: ${req.params.username}`)
+    await queryByUsername(req.params.username, (err, data) => {
+      if (err) {
+        res.status(err['$metadata'] ? err['$metadata'].httpStatusCode: 500)
+        res.json(err);
+      }
+      else res.json(data);
+    })
   }  
   catch (err) {
     res.status(500)
