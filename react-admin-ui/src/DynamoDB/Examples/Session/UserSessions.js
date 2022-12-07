@@ -1,6 +1,6 @@
 import React from "react";
 import { Formik, Form } from 'formik';
-import { input, submitBtn } from '../../../Common/FormUtils'
+import { input, submitBtn } from '../../../Common/UIFragmentUtils'
 import SessionList from './SessionList'
 
 const { v4: uuidv4 } = require('uuid');

@@ -69,6 +69,12 @@ class ExpressClient {
         headers: this.jsonHeaders,        
       });
     };
+    deleteUserSessions = (username) => {
+      return fetch(`${this.ch18Root}/${username}`, {
+        method: 'DELETE',
+        headers: this.jsonHeaders,        
+      });
+    };
 }
 
 export default ExpressClient;

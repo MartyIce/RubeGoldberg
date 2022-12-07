@@ -75,7 +75,6 @@ const queryByUsername = (username, exec) => {
     }    
   }
   const queryItems = new AWSDynamoDb.QueryCommand(queryParams);
-  console.log("invoking ddbClient.send")
   return ddbClient.send(queryItems, exec);
 }
 
@@ -94,13 +93,27 @@ router.get('/:username', async function (req, res, next) {
 // Delete Sessions by username
 router.delete('/:username', async function (req, res, next) {
   try {
-    console.log(`invoking queryByUsername: ${req.params.username}`)
+    console.log(`invoking delete by username: ${req.params.username}`)
     await queryByUsername(req.params.username, (err, data) => {
       if (err) {
         res.status(err['$metadata'] ? err['$metadata'].httpStatusCode: 500)
         res.json(err);
       }
-      else res.json(data);
+      else {
+        console.log(`item count: ${data.Items.length}`);
+        data.Items.forEach(async i => {
+          console.log(`token: ${i.SessionToken}`);
+          const input = {
+            TableName: tableName,
+            Key: {
+              SessionToken: i.SessionToken,
+            },
+          };
+          const deleteItem = new AWSDynamoDb.DeleteItemCommand(input)
+          await ddbClient.send(deleteItem);          
+        });
+        res.json({ itemCount: data.Items.length})
+      }
     })
   }  
   catch (err) {

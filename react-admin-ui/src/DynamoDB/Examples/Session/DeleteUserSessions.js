@@ -1,30 +1,17 @@
 import React from "react";
 import { Formik, Form } from 'formik';
 import { input, submitBtn } from '../../../Common/UIFragmentUtils'
-import SessionList from './SessionList'
 
-const { v4: uuidv4 } = require('uuid');
-
-class CreateSession extends React.Component {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-    };
-  }
-
-  genUuid() {
-    this.setState({ ...this.state, sessionToken: uuidv4() });
-  }
+class DeleteUserSessions extends React.Component {
 
   render() {
     return (
       <div>
         <Formik
-          initialValues={{ sessionToken: '' }}
+          initialValues={{ username: '' }}
           enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) => {
-            this.props.findSession(values.sessionToken).then(() => {
+            this.props.deleteUserSessions(values.username).then(() => {
               setSubmitting(false);
             }).catch(() => {
               setSubmitting(false);
@@ -34,15 +21,15 @@ class CreateSession extends React.Component {
 
           {({ isSubmitting }) => (
             <Form className="grid grid-cols-1 gap-6">
-              {input('Session Token', 'sessionToken')}
+              {input('Username', 'username')}
               {submitBtn(isSubmitting)}
             </Form>
           )}
         </Formik>
-        <SessionList sessions={this.props.results} />
+        <div>{JSON.stringify(this.props.results)}</div>
       </div>
 
     )
   }
 }
-export default CreateSession
+export default DeleteUserSessions

@@ -1,14 +1,15 @@
 import React from "react";
-import ExpressClient from "../../ExpressClient.js";
+import SessionClient from "./SessionClient.js";
 import CreateSession from './CreateSession'
 import FindSession from './FindSession'
 import UserSessions from './UserSessions'
+import DeleteUserSessions from './DeleteUserSessions'
 import SessionList from './SessionList'
 import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
+import { accordionPanel } from '../../../Common/UIFragmentUtils'
 
 class SessionExample extends React.Component {
-  expressClient = new ExpressClient();
 
   constructor(props) {
     super(props);
@@ -18,23 +19,25 @@ class SessionExample extends React.Component {
       sessionToken: '',
       errorText: '',
       findSessionResults: [],
-      getUserSessionsResults: []
+      getUserSessionsResults: [],
+      deleteUserSessionsResults: {}
     };
-    this.expressClient = new ExpressClient();
-  }
-
-  refreshItems = () => {
-    this.expressClient.getSessions()
-      .then(res => res.json())
-      .then(res => {
-        if (res.Items) {
-          this.setState({ items: res.Items });
-        }
-      });
+    this.sessionClient = new SessionClient();
   }
 
   componentDidMount() {
     this.refreshItems();
+  }
+
+  error = (errorText) => {
+    this.setState({ errorText: errorText });
+  }
+
+  refreshItems = () => {
+    this.setState({ errorText: '' });
+    return this.sessionClient.getSessions(
+      (items) => this.setState({ items: items}),
+      (error) => this.setState({ errorText: JSON.stringify(error) }) );
   }
 
   createSession = (username, sessionToken, ttl) => {
@@ -43,111 +46,44 @@ class SessionExample extends React.Component {
     let expires_at = new Date();
     expires_at.setDate((new Date()).getDate() + (ttl / (60 * 60 * 24)));
 
-    let item = {
-      "SessionToken": { "S": sessionToken },
-      "Username": { "S": username },
-      "CreatedAt": { "S": created_at },
-      "ExpiresAt": { "S": expires_at },
-      "TTL": { "N": expires_at.getTime() }
-    }
-    return this.expressClient.postSession(item)
-      .then(async res => {
-        let responseBody = await res.json();
-        if (res.status !== 200) {
-          this.setState({ errorText: JSON.stringify(responseBody) });
-        } else {
-          this.refreshItems();
-        }
-      });
+    return this.sessionClient.createSession(
+      sessionToken, username, created_at, expires_at,
+      () => this.refreshItems(), this.error);
   }
 
   findSession = (sessionToken) => {
     this.setState({ errorText: '' });
-
-    return this.expressClient.querySessions(
-      "#token = :token",
-      "#ttl >= :epoch",
-      {
-        "#token": "SessionToken",
-        "#ttl": "TTL"
-      },
-      {
-        ":token": { "S": sessionToken },
-        ":epoch": { "N": Date.now() }
-      })
-      .then(async res => {
-        let responseBody = await res.json();
-        if (res.status !== 200) {
-          this.setState({ errorText: JSON.stringify(responseBody) });
-        } else {
-          this.setState({ findSessionResults: responseBody.Items });
-        }
-      })
-      .catch(async err => {
-        console.log(err);
-      })
+    return this.sessionClient.findSession(sessionToken, 
+      (items) => this.setState({ findSessionResults: items}), this.error );
   }
 
   getUserSessions = (username) => {
-    this.setState({ ...this.state, errorText: '' });
+    this.setState({ errorText: '' });
+    return this.sessionClient.getUserSessions(username, 
+      (items) => this.setState({ getUserSessionsResults: items}), this.error );
+    }
 
-    return this.expressClient.getUserSessions(username)
-      .then(async res => {
-        let responseBody = await res.json();
-        console.log(responseBody);
-        if (res.status !== 200) {
-          this.setState({ ...this.state, errorText: JSON.stringify(responseBody) });
-        } else {
-          this.setState({ getUserSessionsResults: responseBody.Items });
-        }
-      })
-      .catch(async err => {
-        console.log(err);
-      })
-  }
+  deleteUserSessions = (username) => {
+    this.setState({ errorText: '' });
+    return this.sessionClient.deleteUserSessions(username, 
+      (results) => {
+        this.setState({ deleteUserSessionsResults: results});
+        this.refreshItems();
+      }, 
+      this.error);
+    }
 
   render() {
     return (
       <div>
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.setState({ errorText: '' })} />}
-
-
-
         <Accordion alwaysOpen={true}>
-          <Accordion.Panel>
-            <Accordion.Title>
-              Sessions
-            </Accordion.Title>
-            <Accordion.Content>
-              <SessionList sessions={this.state.items} />
-            </Accordion.Content>
-          </Accordion.Panel>
-          <Accordion.Panel>
-            <Accordion.Title>
-              Create Session
-            </Accordion.Title>
-            <Accordion.Content>
-              <CreateSession createSession={this.createSession}/>
-            </Accordion.Content>
-          </Accordion.Panel>
-          <Accordion.Panel>
-            <Accordion.Title>
-              Find Session
-            </Accordion.Title>
-            <Accordion.Content>
-              <FindSession findSession={this.findSession} results={this.state.findSessionResults}/>
-            </Accordion.Content>
-          </Accordion.Panel>
-          <Accordion.Panel>
-            <Accordion.Title>
-              User Sessions
-            </Accordion.Title>
-            <Accordion.Content>
-              <UserSessions getUserSessions={this.getUserSessions} results={this.state.getUserSessionsResults}/>
-            </Accordion.Content>
-          </Accordion.Panel>
+          {accordionPanel("Sessions", <SessionList sessions={this.state.items} />)}
+          {accordionPanel("Create Session", <CreateSession createSession={this.createSession} />)}
+          {accordionPanel("Find Session", <FindSession findSession={this.findSession} results={this.state.findSessionResults} />)}
+          {accordionPanel("User Sessions", <UserSessions getUserSessions={this.getUserSessions} results={this.state.getUserSessionsResults} />)}
+          {accordionPanel("Delete User Sessions", <DeleteUserSessions deleteUserSessions={this.deleteUserSessions} results={this.state.deleteUserSessionsResults}/>)}
         </Accordion>
-
       </div>
     );
   }
