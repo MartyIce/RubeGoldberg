@@ -1,14 +1,11 @@
 import React from "react";
 import ExpressClient from "../../ExpressClient.js";
-import { Formik, Form, Field } from 'formik';
+import CreateSession from './CreateSession'
+import FindSession from './FindSession'
+import UserSessions from './UserSessions'
 import SessionList from './SessionList'
-import ErrorMsg from './ErrorMsg'
+import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
-
-const { v4: uuidv4 } = require('uuid');
-
-// TODO - add this to CSS
-const inputClassName = "mt-0 px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:border-black";
 
 class SessionExample extends React.Component {
   expressClient = new ExpressClient();
@@ -19,7 +16,9 @@ class SessionExample extends React.Component {
       items: [],
       username: '',
       sessionToken: '',
-      errorText: ''
+      errorText: '',
+      findSessionResults: [],
+      getUserSessionsResults: []
     };
     this.expressClient = new ExpressClient();
   }
@@ -38,7 +37,7 @@ class SessionExample extends React.Component {
     this.refreshItems();
   }
 
-  createSession(username, sessionToken, ttl) {
+  createSession = (username, sessionToken, ttl) => {
     this.setState({ errorText: '' });
     let created_at = new Date();
     let expires_at = new Date();
@@ -54,7 +53,6 @@ class SessionExample extends React.Component {
     return this.expressClient.postSession(item)
       .then(async res => {
         let responseBody = await res.json();
-        console.log(responseBody);
         if (res.status !== 200) {
           this.setState({ errorText: JSON.stringify(responseBody) });
         } else {
@@ -63,7 +61,7 @@ class SessionExample extends React.Component {
       });
   }
 
-  findSession(sessionToken) {
+  findSession = (sessionToken) => {
     this.setState({ errorText: '' });
 
     return this.expressClient.querySessions(
@@ -79,11 +77,10 @@ class SessionExample extends React.Component {
       })
       .then(async res => {
         let responseBody = await res.json();
-        console.log(responseBody);
         if (res.status !== 200) {
           this.setState({ errorText: JSON.stringify(responseBody) });
         } else {
-          console.log(responseBody);
+          this.setState({ findSessionResults: responseBody.Items });
         }
       })
       .catch(async err => {
@@ -91,7 +88,7 @@ class SessionExample extends React.Component {
       })
   }
 
-  getUserSessions(username) {
+  getUserSessions = (username) => {
     this.setState({ ...this.state, errorText: '' });
 
     return this.expressClient.getUserSessions(username)
@@ -101,35 +98,12 @@ class SessionExample extends React.Component {
         if (res.status !== 200) {
           this.setState({ ...this.state, errorText: JSON.stringify(responseBody) });
         } else {
-          console.log(responseBody);
+          this.setState({ getUserSessionsResults: responseBody.Items });
         }
       })
       .catch(async err => {
         console.log(err);
       })
-  }
-
-  genUuid() {
-    this.setState({ ...this.state, sessionToken: uuidv4() });
-  }
-
-
-  input(label, name, addlElements) {
-    return <label className="block">
-      <span className="text-gray-700">{label}</span>
-      <div className="block w-full">
-        <Field type="text" name={name} className={inputClassName} />
-        {addlElements && addlElements()}
-      </div>
-    </label>;
-  }
-
-  submitBtn(isSubmitting) {
-    return <div>
-      <button type="submit" disabled={isSubmitting} className="btn btn-blue">
-        Submit
-      </button>
-    </div>
   }
 
   render() {
@@ -153,35 +127,7 @@ class SessionExample extends React.Component {
               Create Session
             </Accordion.Title>
             <Accordion.Content>
-              <Formik
-                initialValues={{ username: this.state.username, sessionToken: this.state.sessionToken, ttl: 604800 }}
-                enableReinitialize={true}
-                validateOnChange={true}
-                onSubmit={(values, { setSubmitting }) => {
-                  this.createSession(values.username, values.sessionToken, values.ttl).then(() => {
-                    setSubmitting(false);
-                  }).catch(() => {
-                    setSubmitting(false);
-                  });
-                }}
-                validate={(e) => {
-                  this.setState({ ...this.state, ...e })
-                }}
-              >
-
-                {({ isSubmitting }) => (
-                  <Form className="grid grid-cols-1 gap-6">
-                    {this.input('TTL', 'ttl')}
-                    {this.input('Username', 'username')}
-                    {this.input('Session Token', 'sessionToken', () => {
-                      return <button className="btn btn-blue" type="button" onClick={() => this.genUuid()}>
-                        Generate
-                      </button>
-                    })}
-                    {this.submitBtn(isSubmitting)}
-                  </Form>
-                )}
-              </Formik>
+              <CreateSession createSession={this.createSession}/>
             </Accordion.Content>
           </Accordion.Panel>
           <Accordion.Panel>
@@ -189,25 +135,7 @@ class SessionExample extends React.Component {
               Find Session
             </Accordion.Title>
             <Accordion.Content>
-              <Formik
-                initialValues={{ sessionToken: '' }}
-                enableReinitialize={true}
-                onSubmit={(values, { setSubmitting }) => {
-                  this.findSession(values.sessionToken).then(() => {
-                    setSubmitting(false);
-                  }).catch(() => {
-                    setSubmitting(false);
-                  });
-                }}
-              >
-
-                {({ isSubmitting }) => (
-                  <Form className="grid grid-cols-1 gap-6">
-                    {this.input('Session Token', 'sessionToken')}
-                    {this.submitBtn(isSubmitting)}
-                  </Form>
-                )}
-              </Formik>
+              <FindSession findSession={this.findSession} results={this.state.findSessionResults}/>
             </Accordion.Content>
           </Accordion.Panel>
           <Accordion.Panel>
@@ -215,25 +143,7 @@ class SessionExample extends React.Component {
               User Sessions
             </Accordion.Title>
             <Accordion.Content>
-              <Formik
-                initialValues={{ username: '' }}
-                enableReinitialize={true}
-                onSubmit={(values, { setSubmitting }) => {
-                  this.getUserSessions(values.username).then(() => {
-                    setSubmitting(false);
-                  }).catch(() => {
-                    setSubmitting(false);
-                  });
-                }}
-              >
-
-                {({ isSubmitting }) => (
-                  <Form className="grid grid-cols-1 gap-6">
-                    {this.input('Username', 'username')}
-                    {this.submitBtn(isSubmitting)}
-                  </Form>
-                )}
-              </Formik>
+              <UserSessions getUserSessions={this.getUserSessions} results={this.state.getUserSessionsResults}/>
             </Accordion.Content>
           </Accordion.Panel>
         </Accordion>
