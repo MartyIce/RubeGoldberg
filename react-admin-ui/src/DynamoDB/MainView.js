@@ -1,6 +1,7 @@
 import React from "react";
-import TableList from "./TableList.js";
+import TableList from "./TableMgt/TableList.js";
 import SessionExample from "./Examples/Session/Main.js";
+import ECommerceExample from "./Examples/eCommerce/Main.js";
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 
 class MainView extends React.Component {
@@ -21,7 +22,10 @@ class MainView extends React.Component {
                 <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb">Tables</Link>
               </li>
               <li className="mr-6">
-                <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb/session-example">Session Example</Link>
+                <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb/session-example">Sessions</Link>
+                </li>
+              <li className="mr-6">
+                <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb/ecommerce-example">eCommerce</Link>
               </li>
             </ul>
           </nav>
@@ -35,6 +39,7 @@ class MainView extends React.Component {
         <Routes>
           <Route path="/" element={<TableList />} />
           <Route path="/session-example" element={<SessionExample />} />
+          <Route path="/ecommerce-example" element={<ECommerceExample />} />
         </Routes>
       </div>
     );

@@ -31,6 +31,7 @@ const SimpleMigrator = class {
               console.log(`Table '${jsonData['TableName']}' already exists, skipping`);
             }
             else {
+              console.log(`Creating table '${jsonData['TableName']}'`);
               const createTable = new AWSDynamoDb.CreateTableCommand(jsonData);
               await ddbClient.send(createTable, (err, data) => execute(err, data));
             }

@@ -2,26 +2,19 @@ var express = require('express');
 var router = express.Router();
 var { ddbClient } = require('../../dynamodb/ddbClient');
 const AWSDynamoDb = require("@aws-sdk/client-dynamodb");
+var { execute } = require('./utils');
 
-execute = function (err, data, res) {
-  if (err) {
-    console.log(err)
-    res.status(err['$metadata'].httpStatusCode)
-    res.json(err);
-  }
-  else res.json(data);
-};
-tableName = "SessionStore";
+sessionTableName = "SessionStore";
 
 router.post('/', async function (req, res, next) {
 
   let request = {
-    TableName: tableName,
+    TableName: sessionTableName,
     ConditionExpression: "attribute_not_exists(SessionToken)",
     Item: req.body.session
   };
 
-  // console.log(`request: ${JSON.stringify(request)}`);
+  console.log(`request: ${JSON.stringify(request)}`);
 
   const putItem = new AWSDynamoDb.PutItemCommand(request);
   await ddbClient.send(putItem, (err, data) => execute(err, data, res));
@@ -29,7 +22,7 @@ router.post('/', async function (req, res, next) {
 
 router.get('/', async function (req, res, next) {
   const getItems = new AWSDynamoDb.ScanCommand({
-    TableName: tableName
+    TableName: sessionTableName
   });
   await ddbClient.send(getItems, (err, data) => execute(err, data, res));
 });
@@ -38,7 +31,7 @@ router.post('/query', async function (req, res, next) {
 
   console.log(`request: ${JSON.stringify(req.body)}`);
   const queryParams = {
-    TableName: tableName
+    TableName: sessionTableName
   }
   if(req.body.keyConditionExpression) {
     queryParams.KeyConditionExpression = req.body.keyConditionExpression;
@@ -64,7 +57,7 @@ router.post('/query', async function (req, res, next) {
 
 const queryByUsername = (username, exec) => {
   const queryParams = {
-    TableName: tableName,
+    TableName: sessionTableName,
     IndexName: "Username-index",
     KeyConditionExpression: "#username = :username",
     ExpressionAttributeNames: {
@@ -104,7 +97,7 @@ router.delete('/:username', async function (req, res, next) {
         data.Items.forEach(async i => {
           console.log(`token: ${i.SessionToken}`);
           const input = {
-            TableName: tableName,
+            TableName: sessionTableName,
             Key: {
               SessionToken: i.SessionToken,
             },
