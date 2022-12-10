@@ -5,22 +5,13 @@ import { labelize } from './Utils'
 
 class CreateEntity extends React.Component {
 
-    constructor(props) {
-        super(props);
-
-        const entity = {};
-        for (const property in this.props.entity) {
-            entity[property] = '';
-        }
-        this.state = {
-            entity: entity
-        };
+    handler(p) {
+        return this.props.extraControls && this.props.extraControls.hasOwnProperty(p) ? this.props.extraControls[p] : undefined;
     }
-
     render() {
         return (
             <Formik
-                initialValues={this.state.entity}
+                initialValues={this.props.entity}
                 enableReinitialize={true}
                 validateOnChange={true}
                 onSubmit={(values, { setSubmitting }) => {
@@ -37,7 +28,7 @@ class CreateEntity extends React.Component {
 
                 {({ isSubmitting }) => (
                     <Form className="grid grid-cols-1 gap-6">
-                        {Object.keys(this.state.entity).map(p => input(labelize(p), p))}
+                        {Object.keys(this.props.entity).map(p => input(labelize(p), p, this.handler(p), this.state))}
                         {submitBtn(isSubmitting)}
                     </Form>
                 )}
