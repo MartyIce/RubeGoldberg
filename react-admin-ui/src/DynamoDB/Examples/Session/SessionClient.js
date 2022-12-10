@@ -1,4 +1,4 @@
-import ExpressClient from "./ExpressClient.js";
+import ExpressClient from "./ExpressClient";
 
 class SessionClient {
     expressClient = new ExpressClient();

@@ -13,4 +13,9 @@ const exec = (promise, success, error) => {
         });
 }
 
-export { exec };
+const labelize = (camelCase) => {
+    const result = camelCase.replace(/([A-Z])/g, " $1");
+    return result.charAt(0).toUpperCase() + result.slice(1);
+}
+
+export { exec, labelize };

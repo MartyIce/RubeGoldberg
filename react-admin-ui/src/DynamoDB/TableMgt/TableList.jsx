@@ -1,6 +1,6 @@
 import React from "react";
-import ExpressClient from "./ExpressClient.js";
-import AddTable from "./AddTable.js";
+import ExpressClient from "./ExpressClient";
+import AddTable from "./AddTable";
 
 class TableList extends React.Component {
   expressClient = new ExpressClient();

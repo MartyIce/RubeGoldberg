@@ -1,7 +1,7 @@
 import React from "react";
-import TableList from "./TableMgt/TableList.js";
-import SessionExample from "./Examples/Session/Main.js";
-import ECommerceExample from "./Examples/eCommerce/Main.js";
+import TableList from "./TableMgt/TableList";
+import SessionExample from "./Examples/Session/Main";
+import ECommerceExample from "./Examples/eCommerce/Main";
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 
 class MainView extends React.Component {

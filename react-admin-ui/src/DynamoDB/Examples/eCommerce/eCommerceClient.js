@@ -1,5 +1,5 @@
 import ExpressClient from "./ExpressClient";
-import { exec } from "../../Utils"
+import { exec } from "../../../Common/Utils"
 
 class eCommerceClient {
     expressClient = new ExpressClient();

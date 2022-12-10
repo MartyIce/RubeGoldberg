@@ -1,5 +1,5 @@
 import React from "react";
-import SessionClient from "./SessionClient.js";
+import SessionClient from "./SessionClient";
 import CreateSession from './CreateSession'
 import FindSession from './FindSession'
 import UserSessions from './UserSessions'

@@ -6,7 +6,7 @@ import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
 import { accordionPanel } from '../../../Common/UIFragmentUtils'
 
-class eCommerceExample extends React.Component {
+class ECommerceExample extends React.Component {
 
   constructor(props) {
     super(props);
@@ -27,8 +27,8 @@ class eCommerceExample extends React.Component {
   refreshItems = () => {
     this.setState({ errorText: '' });
     return this.eCommerceClient.getCustomers(
-      (customers) => this.setState({ customers: customers}),
-      (error) => this.setState({ errorText: JSON.stringify(error) }) );
+      (customers) => this.setState({ customers: customers }),
+      (error) => this.setState({ errorText: JSON.stringify(error) }));
   }
 
   createCustomer = (username, email, name) => {
@@ -44,10 +44,10 @@ class eCommerceExample extends React.Component {
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.setState({ errorText: '' })} />}
         <Accordion alwaysOpen={true}>
           {accordionPanel("Customers Raw", <CustomerList customers={this.state.customers} />)}
-          {accordionPanel("Create Customer", <CreateCustomer  createCustomer={this.createCustomer}/>)}
+          {accordionPanel("Create Customer", <CreateCustomer createCustomer={this.createCustomer} />)}
         </Accordion>
       </div>
     );
   }
 }
-export default eCommerceExample
+export default ECommerceExample

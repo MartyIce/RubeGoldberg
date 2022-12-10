@@ -1,5 +1,5 @@
 import React from "react";
-import ExpressClient from "./ExpressClient.js";
+import ExpressClient from "./ExpressClient";
 import { Formik, Form, Field } from 'formik';
 
 class AddTable extends React.Component {
