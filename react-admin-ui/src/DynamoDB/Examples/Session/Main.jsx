@@ -4,10 +4,10 @@ import CreateSession from './CreateSession'
 import FindSession from './FindSession'
 import UserSessions from './UserSessions'
 import DeleteUserSessions from './DeleteUserSessions'
-import SessionList from './SessionList'
 import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
 import { accordionPanel } from '../../../Common/UIFragmentUtils'
+import JsonList from "../../../Common/JsonList";
 
 class SessionExample extends React.Component {
 
@@ -78,7 +78,7 @@ class SessionExample extends React.Component {
       <div>
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.setState({ errorText: '' })} />}
         <Accordion alwaysOpen={true}>
-          {accordionPanel("Sessions", <SessionList sessions={this.state.items} />)}
+          {accordionPanel("Sessions", <JsonList results={this.state.items} />)}
           {accordionPanel("Create Session", <CreateSession createSession={this.createSession} />)}
           {accordionPanel("Find Session", <FindSession findSession={this.findSession} results={this.state.findSessionResults} />)}
           {accordionPanel("User Sessions", <UserSessions getUserSessions={this.getUserSessions} results={this.state.getUserSessionsResults} />)}

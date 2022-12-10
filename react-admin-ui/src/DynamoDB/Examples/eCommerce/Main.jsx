@@ -1,10 +1,10 @@
 import React from "react";
 import eCommerceClient from "./eCommerceClient";
-import CustomerList from "./CustomerList";
 import CreateCustomer from "./CreateCustomer";
 import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
 import { accordionPanel } from '../../../Common/UIFragmentUtils'
+import JsonList from "../../../Common/JsonList";
 
 class ECommerceExample extends React.Component {
 
@@ -43,7 +43,7 @@ class ECommerceExample extends React.Component {
       <div>
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.setState({ errorText: '' })} />}
         <Accordion alwaysOpen={true}>
-          {accordionPanel("Customers Raw", <CustomerList customers={this.state.customers} />)}
+          {accordionPanel("Customers Raw", <JsonList results={this.state.customers} />)}
           {accordionPanel("Create Customer", <CreateCustomer createCustomer={this.createCustomer} />)}
         </Accordion>
       </div>
