@@ -17,6 +17,20 @@ class eCommerceClient {
             }
         ), success, error);
     };
+
+    updateCustomer = (username, name, addresses, success, error) => {
+        return exec(this.expressClient.putCustomer(
+            {
+                username: username,
+                name: name,
+                addresses: addresses
+            }
+        ), success, error);
+    };
+
+    getCustomer = (username, success, error) => {
+        return exec(this.expressClient.getCustomer(username), success, error);
+    };
 }
 
 export default eCommerceClient;

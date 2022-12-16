@@ -86,7 +86,6 @@ router.get('/:username', async function (req, res, next) {
 // Delete Sessions by username
 router.delete('/:username', async function (req, res, next) {
   try {
-    console.log(`invoking delete by username: ${req.params.username}`)
     await queryByUsername(req.params.username, (err, data) => {
       if (err) {
         res.status(err['$metadata'] ? err['$metadata'].httpStatusCode: 500)

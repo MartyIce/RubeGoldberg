@@ -11,9 +11,19 @@ class ExpressClient {
     getCustomers = () => {
         return fetch(`${this.ch19Root}/customers`);
     };
+    getCustomer = (username) => {
+        return fetch(`${this.ch19Root}/customers/${username}`);
+    };
     postCustomer = (customer) => {
       return fetch(`${this.ch19Root}/customers`, {
         method: 'POST',
+        headers: this.jsonHeaders,
+        body: JSON.stringify(customer)
+      });
+    };
+    putCustomer = (customer) => {
+      return fetch(`${this.ch19Root}/customers/${customer.username}`, {
+        method: 'PUT',
         headers: this.jsonHeaders,
         body: JSON.stringify(customer)
       });

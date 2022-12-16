@@ -1,6 +1,7 @@
 import React from "react";
 import eCommerceClient from "./eCommerceClient";
 import CreateCustomer from "./CreateCustomer";
+import EditCustomer from "./EditCustomer";
 import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
 import { accordionPanel } from '../../../Common/UIFragmentUtils'
@@ -12,6 +13,7 @@ class ECommerceExample extends React.Component {
     super(props);
     this.state = {
       customers: [],
+      retrieveCustomerResults: []
     };
     this.eCommerceClient = new eCommerceClient();
   }
@@ -37,6 +39,17 @@ class ECommerceExample extends React.Component {
       () => this.refreshItems(), this.error);
   }
 
+  updateCustomer = (username, name, addresses) => {
+    this.setState({ errorText: '' });
+    return this.eCommerceClient.updateCustomer(username, name, addresses,
+      () => this.refreshItems(), this.error);
+  }
+
+  retrieveCustomer = (username) => {
+    this.setState({ errorText: '' });
+    return this.eCommerceClient.getCustomer(username, 
+      (items) => this.setState({ retrieveCustomerResults: items}), this.error );
+  }
 
   render() {
     return (
@@ -44,7 +57,8 @@ class ECommerceExample extends React.Component {
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.setState({ errorText: '' })} />}
         <Accordion alwaysOpen={true}>
           {accordionPanel("Customers Raw", <JsonList results={this.state.customers} />)}
-          {accordionPanel("Create Customer", <CreateCustomer createCustomer={this.createCustomer} />)}
+          {accordionPanel("Create Customer", <CreateCustomer create={this.createCustomer} />)}
+          {accordionPanel("Edit Customer", <EditCustomer save={this.updateCustomer} retrieve={this.retrieveCustomer} results={this.state.retrieveCustomerResults}/>)}
         </Accordion>
       </div>
     );

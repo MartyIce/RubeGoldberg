@@ -11,13 +11,13 @@ class CreateCustomer extends React.Component {
       name: ''
     };
   }
-  createCustomer = (values) => {
-    return this.props.createCustomer(values.username, values.email, values.name);
+  create = (values) => {
+    return this.props.create(values.username, values.email, values.name);
   }
 
   render() {
     return (
-      <CreateEntity entity={this.state} create={this.createCustomer} />
+      <CreateEntity entity={this.state} create={this.create} />
     )
   }
 }
