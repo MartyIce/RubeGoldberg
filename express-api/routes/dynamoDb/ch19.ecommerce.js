@@ -27,11 +27,13 @@ router.get('/customers/:username', async function (req, res, next) {
   }
 
   map = (raw) => {
+    console.log(raw);
     let ret = raw.Items.map(i => {
       return {
         username: i.Username.S,
         name: i.Name.S,
-        email: i['Email Address'].S
+        email: i['Email Address'].S,
+        addresses: i.Addresses ? JSON.parse(i.Addresses.S) : []
       }
     });
     return ret;
@@ -96,11 +98,13 @@ router.put('/customers/:username', async function (req, res, next) {
       "PK": { "S": key},
       "SK": { "S": key},
     },
-    UpdateExpression: "set #name = :name",
+    UpdateExpression: "set #name = :name, #addresses = :addresses",
     ExpressionAttributeNames: {
-      '#name': 'name'
+      '#name': 'Name',
+      '#addresses': 'Addresses',
     }, ExpressionAttributeValues: {
-      ":name": { "S": req.body.name }
+      ":name": { "S": req.body.name },
+      ":addresses": { "S": JSON.stringify(req.body.addresses) }
     },
     ReturnValues: "ALL_NEW"
   }

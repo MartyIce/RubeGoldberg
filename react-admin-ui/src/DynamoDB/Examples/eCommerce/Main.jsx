@@ -42,7 +42,10 @@ class ECommerceExample extends React.Component {
   updateCustomer = (username, name, addresses) => {
     this.setState({ errorText: '' });
     return this.eCommerceClient.updateCustomer(username, name, addresses,
-      () => this.refreshItems(), this.error);
+      () => {
+        this.retrieveCustomer(username);
+        this.refreshItems();
+      }, this.error);
   }
 
   retrieveCustomer = (username) => {

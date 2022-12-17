@@ -22,6 +22,14 @@ const submitBtn = (isSubmitting, label) => {
   </div>
 }
 
+const btn = (disabled, label, onClick) => {
+  return <div>
+    <button disabled={disabled} className="btn btn-blue" onClick={onClick}>
+      {label}
+    </button>
+  </div>
+}
+
 const accordionPanel = (title, inner) => {
   return (<Accordion.Panel>
     <Accordion.Title>
@@ -33,4 +41,4 @@ const accordionPanel = (title, inner) => {
   </Accordion.Panel>)
 }
 
-export { input, submitBtn, accordionPanel }
+export { input, btn, submitBtn, accordionPanel }
