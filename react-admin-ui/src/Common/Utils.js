@@ -3,13 +3,13 @@ const exec = (promise, success, error) => {
         .then(async res => {
             let responseBody = await res.json();
             if (res.status !== 200) {
-                error(JSON.stringify(responseBody));
+                return error(JSON.stringify(responseBody));
             } else {
-                success(responseBody.Items ? responseBody.Items : responseBody);
+                return success(responseBody.Items ? responseBody.Items : responseBody);
             }
         })
         .catch(async err => {
-            error(JSON.stringify(err));
+            return error(JSON.stringify(err));
         });
 }
 

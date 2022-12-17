@@ -15,19 +15,15 @@ const input = (label, name, addlElements, formState, disabled) => {
 }
 
 const submitBtn = (isSubmitting, label) => {
-  return <div>
-    <button type="submit" disabled={isSubmitting} className="btn btn-blue">
+  return <button type="submit" disabled={isSubmitting} className="btn btn-blue">
       {label ?? 'Submit'}
     </button>
-  </div>
 }
 
 const btn = (disabled, label, onClick) => {
-  return <div>
-    <button disabled={disabled} className="btn btn-blue" onClick={onClick}>
+  return <button type="button" disabled={disabled} className="btn btn-blue" onClick={onClick}>
       {label}
-    </button>
-  </div>
+    </button>;
 }
 
 const accordionPanel = (title, inner) => {

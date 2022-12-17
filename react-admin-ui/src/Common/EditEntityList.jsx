@@ -11,7 +11,8 @@ class EditEntityList extends React.Component {
       return {
         name: f,
         label: labelize(f),
-        disabled: this.props.fields[f].disabled
+        disabled: this.props.fields[f].disabled,
+        propIdentifier: f.propIdentifier
       }
     });
   }
@@ -41,12 +42,17 @@ class EditEntityList extends React.Component {
             {({ isSubmitting }) => (
               <Form className="grid grid-cols-1 gap-6">
                 {this.fields.map(f => input(f.label, f.name, null, this.state, f.disabled))}
-                {submitBtn(isSubmitting, 'Save')}
+                <div className="grid grid-cols-2 gap-2 pb-4">
+                  {submitBtn(isSubmitting, 'Save')}
+                  {btn(false, 'Delete', () => this.props.delete(e))}
+                </div>
               </Form>
             )}
           </Formik>
         )}
-        {btn(false, 'Add New', () => this.props.addNew(this.blankEntity()))}
+        <div className="grid grid-cols-1">
+          {btn(false, 'Add New', () => this.props.addNew(this.blankEntity()))}
+        </div>
       </div>
     )
   }

@@ -22,7 +22,9 @@ class FindEntity extends React.Component {
           {({ isSubmitting }) => (
             <Form className="grid grid-cols-1 gap-6">
               {Object.keys(this.props.searchFields).map(p => input(labelize(p), p, this.state))}
-              {submitBtn(isSubmitting, 'Search')}
+              <div>
+                {submitBtn(isSubmitting, 'Search')}
+              </div>
             </Form>
           )}
         </Formik>
