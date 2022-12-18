@@ -8,9 +8,25 @@ eCommerceTableName = "ECommerceTable";
 
 router.get('/customers', async function (req, res, next) {
   const getItems = new AWSDynamoDb.ScanCommand({
-    TableName: eCommerceTableName
+    TableName: eCommerceTableName,
+    FilterExpression: "begins_with(PK, :pk)",
+    ExpressionAttributeValues: {
+      ":pk": { "S": "CUSTOMER#" }
+    }
   });
-  await ddbClient.send(getItems, (err, data) => execute(err, data, res));
+
+  map = (raw) => {
+    let ret = raw.Items.map(i => {
+      return {
+        username: i.Username.S,
+        name: i.Name.S,
+        email: i['Email Address'].S
+      }
+    });
+    return ret;
+  }
+
+  await ddbClient.send(getItems, (err, data) => execute(err, map(data), res));
 });
 
 router.get('/customers/:username', async function (req, res, next) {
@@ -27,7 +43,6 @@ router.get('/customers/:username', async function (req, res, next) {
   }
 
   map = (raw) => {
-    console.log(raw);
     let ret = raw.Items.map(i => {
       return {
         username: i.Username.S,
@@ -95,8 +110,8 @@ router.put('/customers/:username', async function (req, res, next) {
   const params = {
     TableName: eCommerceTableName,
     Key: {
-      "PK": { "S": key},
-      "SK": { "S": key},
+      "PK": { "S": key },
+      "SK": { "S": key },
     },
     UpdateExpression: "set #name = :name, #addresses = :addresses",
     ExpressionAttributeNames: {
@@ -113,6 +128,40 @@ router.put('/customers/:username', async function (req, res, next) {
 
   const updateItem = new AWSDynamoDb.UpdateItemCommand(params);
   await ddbClient.send(updateItem, (err, data) => execute(err, data, res));
+});
+
+// Delete Customer by username
+router.delete('/customers/:username', async function (req, res, next) {
+  try {
+    const deleteItem = new AWSDynamoDb.TransactWriteItemsCommand({
+      TransactItems: [
+        {
+          Delete: {
+            TableName: eCommerceTableName,
+            Key: {
+              "PK": { S: `CUSTOMER#${req.params.username}`},
+              "SK": { S: `CUSTOMER#${req.params.username}`},
+            },
+          }
+        },
+        {
+          Delete: {
+            TableName: eCommerceTableName,
+            Key: {
+              "PK": { S: `CUSTOMEREMAIL#${req.params.username}`},
+              "SK": { S: `CUSTOMEREMAIL#${req.params.username}`},
+            },
+          }
+        }
+      ]
+    });
+    await ddbClient.send(deleteItem, (err, data) => execute(err, data, res));
+  }
+  catch (err) {
+    console.log(err);
+    res.status(500)
+    res.json(err);
+  }
 });
 
 module.exports = router;

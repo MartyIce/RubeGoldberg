@@ -5,6 +5,7 @@ import EditCustomer from "./EditCustomer";
 import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
 import { accordionPanel } from '../../../Common/UIFragmentUtils'
+import EntityList from "../../../Common/EntityList";
 import JsonList from "../../../Common/JsonList";
 
 class ECommerceExample extends React.Component {
@@ -50,8 +51,30 @@ class ECommerceExample extends React.Component {
 
   retrieveCustomer = (username) => {
     this.setState({ errorText: '' });
-    return this.eCommerceClient.getCustomer(username, 
-      (items) => this.setState({ retrieveCustomerResults: items}), this.error );
+    return this.eCommerceClient.getCustomer(username,
+      (items) => this.setState({ retrieveCustomerResults: items }), this.error);
+  }
+
+  deleteCustomer = (customer) => {
+    this.setState({ errorText: '' });
+    return this.eCommerceClient.deleteCustomer(customer.username,
+      () => {
+        this.refreshItems();
+      }, this.error);
+  }
+
+  selectCustomer = (customer) => {
+    this.setState({ errorText: '' });
+    return this.retrieveCustomer(customer.username);
+  }
+
+  fields = {
+    username: {
+    },
+    email: {
+    },
+    name: {
+    },
   }
 
   render() {
@@ -59,9 +82,9 @@ class ECommerceExample extends React.Component {
       <div>
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.setState({ errorText: '' })} />}
         <Accordion alwaysOpen={true}>
-          {accordionPanel("Customers Raw", <JsonList results={this.state.customers} />)}
+          {accordionPanel("Customers", <EntityList results={this.state.customers} fields={this.fields} delete={this.deleteCustomer} select={this.selectCustomer}/>)}
           {accordionPanel("Create Customer", <CreateCustomer create={this.createCustomer} />)}
-          {accordionPanel("Edit Customer", <EditCustomer save={this.updateCustomer} retrieve={this.retrieveCustomer} results={this.state.retrieveCustomerResults}/>)}
+          {accordionPanel("Edit Customer", <EditCustomer save={this.updateCustomer} retrieve={this.retrieveCustomer} results={this.state.retrieveCustomerResults} />)}
         </Accordion>
       </div>
     );

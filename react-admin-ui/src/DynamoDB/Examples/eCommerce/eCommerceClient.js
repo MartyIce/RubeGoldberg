@@ -31,6 +31,10 @@ class eCommerceClient {
     getCustomer = (username, success, error) => {
         return exec(this.expressClient.getCustomer(username), success, error);
     };
+
+    deleteCustomer = (username, success, error) => {
+        return exec(this.expressClient.deleteCustomer(username), success, error);
+    };
 }
 
 export default eCommerceClient;
