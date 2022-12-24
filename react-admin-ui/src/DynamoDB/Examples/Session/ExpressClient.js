@@ -40,13 +40,19 @@ class ExpressClient {
       });
     };
     getUserSessions = (username) => {
-      return fetch(`${this.ch18Root}/${username}`, {
+      return fetch(`${this.ch18Root}/user/${username}`, {
         method: 'GET',
         headers: this.jsonHeaders,        
       });
     };
     deleteUserSessions = (username) => {
-      return fetch(`${this.ch18Root}/${username}`, {
+      return fetch(`${this.ch18Root}/user/${username}`, {
+        method: 'DELETE',
+        headers: this.jsonHeaders,        
+      });
+    };
+    deleteSession = (token) => {
+      return fetch(`${this.ch18Root}/${token}`, {
         method: 'DELETE',
         headers: this.jsonHeaders,        
       });

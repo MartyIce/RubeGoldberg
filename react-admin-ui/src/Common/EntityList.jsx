@@ -17,8 +17,9 @@ class EntityList extends React.Component {
         <tbody>
           {this.props.results && this.props.results.map((t, i) =>
             // eslint-disable-next-line jsx-a11y/anchor-is-valid
-            <tr key={`Entity_List${i}`} onClick={() => this.props.select(t)}>
-              {Object.keys(this.props.fields).map(f => <td className={this.tdClassName} key={`Entity_List${i}_${f}`}>{t[f]}</td>)}
+            <tr key={`Entity_List${i}`} >
+              {Object.keys(this.props.fields).map(f => 
+                <td className={this.tdClassName} key={`Entity_List${i}_${f}`} onClick={() => this.props.select ? this.props.select(t) : () => {}}>{t[f]}</td>)}
               <td className={this.tdClassName} key={`Entity_List${i}_delete`}>
                 {btn(false, 'Delete', () => this.props.delete(t))}
               </td>

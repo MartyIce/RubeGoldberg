@@ -1,6 +1,7 @@
 import React from "react";
 import eCommerceClient from "./eCommerceClient";
 import CreateCustomer from "./CreateCustomer";
+import CreateCustomerOrder from "./CreateCustomerOrder";
 import EditCustomer from "./EditCustomer";
 import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
@@ -13,7 +14,10 @@ class ECommerceExample extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      allRaw: [],
       customers: [],
+      customersRaw: [],
+      orders: [],
       retrieveCustomerResults: []
     };
     this.eCommerceClient = new eCommerceClient();
@@ -29,14 +33,39 @@ class ECommerceExample extends React.Component {
 
   refreshItems = () => {
     this.setState({ errorText: '' });
-    return this.eCommerceClient.getCustomers(
+
+    this.eCommerceClient.getAll(
+      (allRaw) => this.setState({ allRaw: allRaw }),
+      (error) => this.setState({ errorText: JSON.stringify(error) }));
+
+    this.eCommerceClient.getCustomers(
       (customers) => this.setState({ customers: customers }),
+      (error) => this.setState({ errorText: JSON.stringify(error) }));
+
+    this.eCommerceClient.getCustomersRaw(
+      (customersRaw) => this.setState({ customersRaw: customersRaw }),
+      (error) => this.setState({ errorText: JSON.stringify(error) }));
+
+    this.eCommerceClient.getOrders(
+      (orders) => this.setState({ orders: orders }),
       (error) => this.setState({ errorText: JSON.stringify(error) }));
   }
 
   createCustomer = (username, email, name) => {
     this.setState({ errorText: '' });
     return this.eCommerceClient.createCustomer(username, email, name,
+      () => this.refreshItems(), this.error);
+  }
+
+  createCustomerOrder = (username, item_id, status, amount, number_items) => {
+    this.setState({ errorText: '' });
+    return this.eCommerceClient.createCustomerOrder(username,
+      {
+        item_id: item_id,
+        status: status,
+        amount: amount,
+        number_items: number_items
+      },
       () => this.refreshItems(), this.error);
   }
 
@@ -68,6 +97,9 @@ class ECommerceExample extends React.Component {
     return this.retrieveCustomer(customer.username);
   }
 
+  currentUsername = () => this.state.retrieveCustomerResults && this.state.retrieveCustomerResults.length > 0 ?
+    this.state.retrieveCustomerResults[0].username : '';
+
   fields = {
     username: {
     },
@@ -82,9 +114,13 @@ class ECommerceExample extends React.Component {
       <div>
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.setState({ errorText: '' })} />}
         <Accordion alwaysOpen={true}>
-          {accordionPanel("Customers", <EntityList results={this.state.customers} fields={this.fields} delete={this.deleteCustomer} select={this.selectCustomer}/>)}
-          {accordionPanel("Create Customer", <CreateCustomer create={this.createCustomer} />)}
+          {accordionPanel("All Raw", <JsonList results={this.state.allRaw} />)}
+          {accordionPanel("Customers", <EntityList results={this.state.customers} fields={this.fields} delete={this.deleteCustomer} select={this.selectCustomer} />)}
+          {accordionPanel("Customers Raw", <JsonList results={this.state.customersRaw} />)}
+          {accordionPanel("Create Customer", <CreateCustomer username={this.currentUsername()} create={this.createCustomer} />)}
           {accordionPanel("Edit Customer", <EditCustomer save={this.updateCustomer} retrieve={this.retrieveCustomer} results={this.state.retrieveCustomerResults} />)}
+          {accordionPanel("Orders Raw", <JsonList results={this.state.orders} />)}
+          {accordionPanel("Create Customer Order", <CreateCustomerOrder create={this.createCustomerOrder} />)}
         </Accordion>
       </div>
     );

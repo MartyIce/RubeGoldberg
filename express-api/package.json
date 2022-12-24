@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon --legacy-watch ./bin/www"
+    "start": "nodemon --inspect=0.0.0.0:9229 --legacy-watch ./bin/www"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.200.0",
@@ -12,6 +12,7 @@
     "cors": "^2.8.5",
     "debug": "~2.6.9",
     "express": "~4.16.1",
+    "ksuid": "^3.0.0",
     "morgan": "~1.9.1",
     "nodemon": "^2.0.20"
   },

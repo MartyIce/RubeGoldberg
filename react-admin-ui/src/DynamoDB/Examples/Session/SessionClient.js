@@ -41,6 +41,10 @@ class SessionClient {
     deleteUserSessions = (username, success, error) => {
         return exec(this.expressClient.deleteUserSessions(username), success, error);
     };
+
+    deleteSession = (token, success, error) => {
+        return exec(this.expressClient.deleteSession(token), success, error);
+    };
 }
 
 export default SessionClient;

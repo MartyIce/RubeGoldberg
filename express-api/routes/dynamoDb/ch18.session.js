@@ -14,17 +14,26 @@ router.post('/', async function (req, res, next) {
     Item: req.body.session
   };
 
-  console.log(`request: ${JSON.stringify(request)}`);
-
   const putItem = new AWSDynamoDb.PutItemCommand(request);
-  await ddbClient.send(putItem, (err, data) => execute(err, data, res));
+  await ddbClient.send(putItem, (err, data) => execute(err, {}, res));
 });
+
+map = (raw) => {
+  return raw.Items.map(i => {
+    return {
+      username: i.Username.S,
+      token: i.SessionToken.S,
+      createdAt: i.CreatedAt ? i.CreatedAt.S : '',
+      expiresAt: i.ExpiresAt ? i.ExpiresAt.S : ''
+    }
+  });
+}
 
 router.get('/', async function (req, res, next) {
   const getItems = new AWSDynamoDb.ScanCommand({
     TableName: sessionTableName
   });
-  await ddbClient.send(getItems, (err, data) => execute(err, data, res));
+  await ddbClient.send(getItems, (err, data) => execute(err, map(data), res));
 });
 
 router.post('/query', async function (req, res, next) {
@@ -33,22 +42,22 @@ router.post('/query', async function (req, res, next) {
   const queryParams = {
     TableName: sessionTableName
   }
-  if(req.body.keyConditionExpression) {
+  if (req.body.keyConditionExpression) {
     queryParams.KeyConditionExpression = req.body.keyConditionExpression;
   }
-  if(req.body.filterExpression) {
+  if (req.body.filterExpression) {
     queryParams.FilterExpression = req.body.filterExpression;
   }
-  if(req.body.expressionAttributeNames) {
+  if (req.body.expressionAttributeNames) {
     queryParams.ExpressionAttributeNames = req.body.expressionAttributeNames;
   }
-  if(req.body.expressionAttributeValues) {
+  if (req.body.expressionAttributeValues) {
     queryParams.ExpressionAttributeValues = req.body.expressionAttributeValues;
   }
   const queryItems = new AWSDynamoDb.QueryCommand(queryParams);
   try {
-    await ddbClient.send(queryItems, (err, data) => execute(err, data, res));
-  }  
+    await ddbClient.send(queryItems, (err, data) => execute(err, map(data), res));
+  }
   catch (err) {
     res.status(500)
     res.json(err);
@@ -61,22 +70,22 @@ const queryByUsername = (username, exec) => {
     IndexName: "Username-index",
     KeyConditionExpression: "#username = :username",
     ExpressionAttributeNames: {
-    "#username": "Username"
+      "#username": "Username"
     },
     ExpressionAttributeValues: {
-    ":username": { "S": username }
-    }    
+      ":username": { "S": username }
+    }
   }
   const queryItems = new AWSDynamoDb.QueryCommand(queryParams);
   return ddbClient.send(queryItems, exec);
 }
 
 // Get Sessions by username
-router.get('/:username', async function (req, res, next) {
+router.get('/user/:username', async function (req, res, next) {
 
   try {
-    await queryByUsername(req.params.username, (err, data) => execute(err, data, res))
-  }  
+    await queryByUsername(req.params.username, (err, data) => execute(err, map(data), res))
+  }
   catch (err) {
     res.status(500)
     res.json(err);
@@ -84,11 +93,11 @@ router.get('/:username', async function (req, res, next) {
 });
 
 // Delete Sessions by username
-router.delete('/:username', async function (req, res, next) {
+router.delete('/user/:username', async function (req, res, next) {
   try {
     await queryByUsername(req.params.username, (err, data) => {
       if (err) {
-        res.status(err['$metadata'] ? err['$metadata'].httpStatusCode: 500)
+        res.status(err['$metadata'] ? err['$metadata'].httpStatusCode : 500)
         res.json(err);
       }
       else {
@@ -102,12 +111,30 @@ router.delete('/:username', async function (req, res, next) {
             },
           };
           const deleteItem = new AWSDynamoDb.DeleteItemCommand(input)
-          await ddbClient.send(deleteItem);          
+          await ddbClient.send(deleteItem);
         });
-        res.json({ itemCount: data.Items.length})
+        res.json({ itemCount: data.Items.length })
       }
     })
-  }  
+  }
+  catch (err) {
+    res.status(500)
+    res.json(err);
+  }
+});
+
+// Delete Session by token
+router.delete('/:token', async function (req, res, next) {
+  try {
+    const input = {
+      TableName: sessionTableName,
+      Key: {
+        SessionToken: { "S": req.params.token },
+      },
+    };
+    const deleteItem = new AWSDynamoDb.DeleteItemCommand(input)
+    await ddbClient.send(deleteItem, (err, data) => execute(err, data, res));
+  }
   catch (err) {
     res.status(500)
     res.json(err);

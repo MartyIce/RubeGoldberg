@@ -7,7 +7,7 @@ import DeleteUserSessions from './DeleteUserSessions'
 import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
 import { accordionPanel } from '../../../Common/UIFragmentUtils'
-import JsonList from "../../../Common/JsonList";
+import EntityList from "../../../Common/EntityList";
 
 class SessionExample extends React.Component {
 
@@ -73,12 +73,33 @@ class SessionExample extends React.Component {
       this.error);
     }
 
-  render() {
+
+  deleteSession = (session) => {
+    this.setState({ errorText: '' });
+    return this.sessionClient.deleteSession(session.token, 
+      (results) => {
+        this.refreshItems();
+      }, 
+      this.error);
+    }
+
+    fields = {
+      username: {
+      },
+      token: {
+      },
+      createdAt: {
+      },
+      expiresAt: {
+      },
+    }
+
+    render() {
     return (
       <div>
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.setState({ errorText: '' })} />}
-        <Accordion alwaysOpen={true}>
-          {accordionPanel("Sessions", <JsonList results={this.state.items} />)}
+        <Accordion alwaysOpen={true}> 
+          {accordionPanel("Sessions", <EntityList results={this.state.items} fields={this.fields} delete={this.deleteSession}/>)}
           {accordionPanel("Create Session", <CreateSession createSession={this.createSession} />)}
           {accordionPanel("Find Session", <FindSession findSession={this.findSession} results={this.state.findSessionResults} />)}
           {accordionPanel("User Sessions", <UserSessions getUserSessions={this.getUserSessions} results={this.state.getUserSessionsResults} />)}
