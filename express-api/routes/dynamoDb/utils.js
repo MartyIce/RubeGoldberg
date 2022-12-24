@@ -20,7 +20,10 @@ tryCatch = async function (action, res) {
   }
 };
 
+sOrBlank = (field) => field ? field.S : '';
+
 module.exports = {
   execute: execute,
-  tryCatch: tryCatch
+  tryCatch: tryCatch,
+  sOrBlank: sOrBlank
 };

@@ -2,16 +2,20 @@ var express = require('express');
 var router = express.Router();
 var { ddbClient } = require('../../dynamodb/ddbClient');
 const AWSDynamoDb = require("@aws-sdk/client-dynamodb");
-var { execute, tryCatch } = require('./utils');
+var { execute, tryCatch, sOrBlank } = require('./utils');
 const KSUID = require('ksuid')
 
 eCommerceTableName = "ECommerceTable";
 
-sOrBlank = (field) => field ? field.S : '';
-
 mapCustomer = (raw) => {
-  if (!raw || !raw.Items) return {};
-  let ret = raw.Items.map(i => {
+  if (!raw) return {};
+  let items = raw.Items;
+  if (!items && raw.Attributes) {
+    items = [raw.Attributes];
+  }
+  if (!items) return {};
+
+  let ret = items.map(i => {
     return {
       username: sOrBlank(i.Username),
       name: sOrBlank(i.Name),
@@ -22,14 +26,19 @@ mapCustomer = (raw) => {
   return ret;
 }
 
+execCustomerRet = (cmd, raw, res) => {
+  return tryCatch(() => ddbClient.send(cmd, (err, data) => execute(err, raw ? data : mapCustomer(data), res)));
+}
+
+// Get All Raw
 router.get('', async function (req, res, next) {
   const getItems = new AWSDynamoDb.ScanCommand({
     TableName: eCommerceTableName,
   });
-
-  await ddbClient.send(getItems, (err, data) => execute(err, data, res));
+  await tryCatch(() => ddbClient.send(getItems, (err, data) => execute(err, data, res)));
 });
 
+// Get Customers
 router.get('/customers', async function (req, res, next) {
   const getItems = new AWSDynamoDb.ScanCommand({
     TableName: eCommerceTableName,
@@ -38,13 +47,11 @@ router.get('/customers', async function (req, res, next) {
       ":pk": { "S": "CUSTOMER#" }
     }
   });
-
-  await ddbClient.send(getItems, (err, data) => execute(err, req.query.raw ? data : mapCustomer(data), res));
+  await execCustomerRet(getItems, req.query.raw, res);
 });
 
-router.get('/customers/:username', async function (req, res, next) {
-  
-  const queryParams = {
+customerByUsername = async (username, exec) => {
+  const getCustomer = new AWSDynamoDb.QueryCommand({
     TableName: eCommerceTableName,
     KeyConditionExpression: "#PK = :username AND #SK = :username",
     ExpressionAttributeNames: {
@@ -52,23 +59,19 @@ router.get('/customers/:username', async function (req, res, next) {
       "#SK": "SK"
     },
     ExpressionAttributeValues: {
-      ":username": { "S": `CUSTOMER#${req.params.username}` }
+      ":username": { "S": `CUSTOMER#${username}` }
     }
-  }
-
-  const queryItems = new AWSDynamoDb.QueryCommand(queryParams);
-  try {
-    await ddbClient.send(queryItems, (err, data) => execute(err, mapCustomer(data), res));
-  }
-  catch (err) {
-    res.status(500)
-    res.json(err);
-  }
+  });
+  await ddbClient.send(getCustomer, exec);
+}
+// Get Customer By Username
+router.get('/customers/:username', async function (req, res, next) {
+  await customerByUsername(req.params.username,
+    (err, data) => {
+      execute(err, req.query.raw ? data : mapCustomer(data), res)
+    });
 });
 
-// execCustomerRet = async (cmd, raw) => {
-//   await tryCatch(async () => await ddbClient.send(cmd, (err, data) => execute(err, raw ? data : mapCustomer(data), res)));
-// }
 router.post('/customers', async function (req, res, next) {
 
   const username = req.body.username;
@@ -105,16 +108,14 @@ router.post('/customers', async function (req, res, next) {
       }
     ]
   });
-  
-  // execCustomerRet(putItem, req.query.raw);
-  await tryCatch(async () => await ddbClient.send(putItem, (err, data) => execute(err, req.query.raw ? data : mapCustomer(data), res)));
+  await execCustomerRet(putItem, req.query.raw, res);
 });
 
 router.put('/customers/:username', async function (req, res, next) {
 
   const username = req.body.username;
   const key = `CUSTOMER#${username}`;
-  const params = {
+  const updateItem = new AWSDynamoDb.UpdateItemCommand({
     TableName: eCommerceTableName,
     Key: {
       "PK": { "S": key },
@@ -129,46 +130,58 @@ router.put('/customers/:username', async function (req, res, next) {
       ":addresses": { "S": JSON.stringify(req.body.addresses) }
     },
     ReturnValues: "ALL_NEW"
-  }
-
-  console.log(`params: ${JSON.stringify(params)}`);
-
-  const updateItem = new AWSDynamoDb.UpdateItemCommand(params);
-  await ddbClient.send(updateItem, (err, data) => execute(err, mapCustomer(data), res));
+  });
+  await execCustomerRet(updateItem, req.query.raw, res);
 });
 
 // Delete Customer by username
 router.delete('/customers/:username', async function (req, res, next) {
-  try {
-    const deleteItem = new AWSDynamoDb.TransactWriteItemsCommand({
-      TransactItems: [
-        {
-          Delete: {
-            TableName: eCommerceTableName,
-            Key: {
-              "PK": { S: `CUSTOMER#${req.params.username}` },
-              "SK": { S: `CUSTOMER#${req.params.username}` },
-            },
+  await customerByUsername(req.params.username,
+    (err, data) => {
+      if (err) {
+        console.log(err);
+        res.status(500)
+        res.json(err);
+      } else {
+        try {
+          if (!data || !data.Items || data.Items.length != 1) {
+            res.status(404)
+            res.json({ msg: "Unable to locate user" });
           }
-        },
-        {
-          Delete: {
-            TableName: eCommerceTableName,
-            Key: {
-              "PK": { S: `CUSTOMEREMAIL#${req.params.username}` },
-              "SK": { S: `CUSTOMEREMAIL#${req.params.username}` },
-            },
+          else {
+            const email = data.Items[0]["Email Address"].S;
+            const deleteItem = new AWSDynamoDb.TransactWriteItemsCommand({
+              TransactItems: [
+                {
+                  Delete: {
+                    TableName: eCommerceTableName,
+                    Key: {
+                      "PK": { S: `CUSTOMER#${req.params.username}` },
+                      "SK": { S: `CUSTOMER#${req.params.username}` },
+                    },
+                  }
+                },
+                {
+                  Delete: {
+                    TableName: eCommerceTableName,
+                    Key: {
+                      "PK": { S: `CUSTOMEREMAIL#${email}` },
+                      "SK": { S: `CUSTOMEREMAIL#${email}` },
+                    },
+                  }
+                }
+              ]
+            });
+            ddbClient.send(deleteItem, (err, data) => execute(err, data, res));
           }
         }
-      ]
+        catch (err) {
+          console.log(err);
+          res.status(500)
+          res.json(err);
+        }
+      }
     });
-    await ddbClient.send(deleteItem, (err, data) => execute(err, data, res));
-  }
-  catch (err) {
-    console.log(err);
-    res.status(500)
-    res.json(err);
-  }
 });
 
 
