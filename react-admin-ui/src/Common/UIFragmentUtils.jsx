@@ -15,7 +15,7 @@ const input = (label, name, addlElements, formState, disabled) => {
 }
 
 const submitBtn = (isSubmitting, label) => {
-  return <button type="submit" disabled={isSubmitting} className="btn btn-blue">
+  return <button type="submit" disabled={isSubmitting} className="btn btn-blue btn-submit">
       {label ?? 'Submit'}
     </button>
 }

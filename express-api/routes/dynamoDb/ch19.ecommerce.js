@@ -2,12 +2,12 @@ var express = require('express');
 var router = express.Router();
 var { ddbClient } = require('../../dynamodb/ddbClient');
 const AWSDynamoDb = require("@aws-sdk/client-dynamodb");
-var { execute, tryCatch, sOrBlank } = require('./utils');
+var { execute, tryCatch, sOrBlank, nOrBlank } = require('./utils');
 const KSUID = require('ksuid')
 
 eCommerceTableName = "ECommerceTable";
 
-mapCustomer = (raw) => {
+mapItem = (raw, map) => {
   if (!raw) return {};
   let items = raw.Items;
   if (!items && raw.Attributes) {
@@ -15,7 +15,11 @@ mapCustomer = (raw) => {
   }
   if (!items) return {};
 
-  let ret = items.map(i => {
+  return items.map(i => map(i));
+}
+
+mapCustomer = (raw) => {
+  return mapItem(raw, (i) => {
     return {
       username: sOrBlank(i.Username),
       name: sOrBlank(i.Name),
@@ -23,11 +27,28 @@ mapCustomer = (raw) => {
       addresses: i.Addresses ? JSON.parse(i.Addresses.S) : []
     }
   });
-  return ret;
+}
+
+mapOrder = (raw) => {
+  return mapItem(raw, (i) => {
+    return {
+      customer: i.PK.S.replace("CUSTOMER#", ""),
+      orderId: sOrBlank(i.OrderId),
+      createdAt: sOrBlank(i.CreatedAt),
+      itemId: sOrBlank(i.ItemId),
+      status: sOrBlank(i.Status),
+      amount: sOrBlank(i.Amount),
+      numberItems: nOrBlank(i.NumberItems),
+    }
+  });
 }
 
 execCustomerRet = (cmd, raw, res) => {
   return tryCatch(() => ddbClient.send(cmd, (err, data) => execute(err, raw ? data : mapCustomer(data), res)));
+}
+
+execOrdersRet = (cmd, raw, res) => {
+  return tryCatch(() => ddbClient.send(cmd, (err, data) => execute(err, raw ? data : mapOrder(data), res)));
 }
 
 // Get All Raw
@@ -136,6 +157,10 @@ router.put('/customers/:username', async function (req, res, next) {
 
 // Delete Customer by username
 router.delete('/customers/:username', async function (req, res, next) {
+
+  // TODO - delete orders
+  // https://stackoverflow.com/questions/49684100/delete-large-data-with-same-partition-key-from-dynamodb
+
   await customerByUsername(req.params.username,
     (err, data) => {
       if (err) {
@@ -190,9 +215,6 @@ router.post('/customers/:username/orders', async function (req, res, next) {
   const username = req.params.username;
   const key = `CUSTOMER#${req.params.username}`
   const orderId = await (await KSUID.random()).string;
-
-  // const putItem = new AWSDynamoDb.PutItemCommand(request);
-  // await ddbClient.send(putItem, (err, data) => execute(err, {}, res));
 
   try {
     const postOrder = new AWSDynamoDb.TransactWriteItemsCommand({
@@ -251,7 +273,38 @@ router.get('/orders', async function (req, res, next) {
     }
   });
 
-  await ddbClient.send(getItems, (err, data) => execute(err, data, res));
+  await execOrdersRet(getItems, req.query.raw, res);
+});
+
+// Delete Order by id
+router.delete('/customers/:username/orders/:orderId', async function (req, res, next) {
+  const deleteItem = new AWSDynamoDb.DeleteItemCommand({
+    TableName: eCommerceTableName,
+    Key: {
+      "PK": { S: `CUSTOMER#${req.params.username}` },
+      "SK": { S: `#ORDER#${req.params.orderId}` },
+    },
+  });
+
+  await execOrdersRet(deleteItem, req.query.raw, res);
+});
+
+// Returns customer record and first X orders (by date desc)
+router.get('/customers/:username/orders', async function (req, res, next) {
+  const getItems = new AWSDynamoDb.QueryCommand({
+    TableName: eCommerceTableName,
+    KeyConditionExpression: '#pk = :pk',
+    ExpressionAttributeNames: {
+    '#pk': 'PK'
+    },
+    ExpressionAttributeValues: {
+    ':pk': { 'S': `CUSTOMER#${req.params.username}` }
+    },
+    ScanIndexForward: false,
+    Limit: req.query.orderCount ?? 5  
+  });
+
+  await execOrdersRet(getItems, req.query.raw, res);
 });
 
 module.exports = router;

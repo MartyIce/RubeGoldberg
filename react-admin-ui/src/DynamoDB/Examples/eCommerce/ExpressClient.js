@@ -20,11 +20,24 @@ class ExpressClient {
   getOrders = () => {
     return fetch(`${this.ch19Root}/orders`);
   };
+  getOrdersRaw = () => {
+    return fetch(`${this.ch19Root}/orders?raw=true`);
+  };
   getCustomer = (username) => {
     return fetch(`${this.ch19Root}/customers/${username}`);
   };
+  getCustomerOrders = (username) => {
+    return fetch(`${this.ch19Root}/customers/${username}/orders`);
+  };
   deleteCustomer = (username) => {
     return fetch(`${this.ch19Root}/customers/${username}`,
+      {
+        method: 'DELETE'
+      }
+    );
+  };
+  deleteOrder = (customerId, orderId) => {
+    return fetch(`${this.ch19Root}/customers/${customerId}/orders/${orderId}`,
       {
         method: 'DELETE'
       }

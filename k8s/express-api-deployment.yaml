@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert -f docker-compose.yaml
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: express-api
+  name: express-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: express-api
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert -f docker-compose.yaml
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: express-api
+    spec:
+      containers:
+        - args:
+            - npm
+            - start
+          image: express-api
+          name: express-api
+          ports:
+            - containerPort: 3000
+            - containerPort: 9229
+          resources: {}
+          volumeMounts:
+            - mountPath: /app
+              name: express-api-claim0
+            - mountPath: /app/node_modules
+              name: express-api-claim1
+      restartPolicy: Always
+      volumes:
+        - name: express-api-claim0
+          persistentVolumeClaim:
+            claimName: express-api-claim0
+        - name: express-api-claim1
+          persistentVolumeClaim:
+            claimName: express-api-claim1
+status: {}

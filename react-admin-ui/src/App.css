@@ -46,6 +46,9 @@
 .btn-blue:hover {
   @apply bg-blue-700;
 }
+.btn-submit {
+  width: 400px;
+}
 
 input[type="email"],
 input[type="text"],

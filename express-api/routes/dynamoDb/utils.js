@@ -21,9 +21,11 @@ tryCatch = async function (action, res) {
 };
 
 sOrBlank = (field) => field ? field.S : '';
+nOrBlank = (field) => field ? field.N : '';
 
 module.exports = {
   execute: execute,
   tryCatch: tryCatch,
-  sOrBlank: sOrBlank
+  sOrBlank: sOrBlank,
+  nOrBlank: nOrBlank
 };
