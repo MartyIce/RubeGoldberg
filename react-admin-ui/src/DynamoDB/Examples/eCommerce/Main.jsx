@@ -2,7 +2,8 @@ import React from "react";
 import eCommerceClient from "./eCommerceClient";
 import CreateCustomer from "./CreateCustomer";
 import CreateCustomerOrder from "./CreateCustomerOrder";
-import EditCustomer from "./EditCustomer";
+import FindAndEditCustomer from "./FindAndEditCustomer";
+import EditCustomer from './EditCustomer';
 import ErrorMsg from '../../../Common/ErrorMsg'
 import { Accordion } from "flowbite-react";
 import { accordionPanel } from '../../../Common/UIFragmentUtils'
@@ -82,6 +83,8 @@ class ECommerceExample extends React.Component {
       }, this.error);
   }
 
+  editCustomer = (customer) => <EditCustomer customer={customer} save={this.updateCustomer} />;
+
   retrieveCustomer = (username) => {
     this.setState({ errorText: '' });
     return this.eCommerceClient.getCustomer(username,
@@ -137,11 +140,11 @@ class ECommerceExample extends React.Component {
       <div>
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.setState({ errorText: '' })} />}
         <Accordion alwaysOpen={true}>
-          {accordionPanel("Customers", <EntityList results={this.state.customers} fields={this.customerFields} delete={this.deleteCustomer} select={this.selectCustomer} />)}
+          {accordionPanel("Customers", <EntityList results={this.state.customers} fields={this.customerFields} delete={this.deleteCustomer} select={this.selectCustomer} edit={this.editCustomer} />)}
           {accordionPanel("Customer Orders", <EntityList results={this.state.customerOrders} fields={this.orderFields} delete={this.deleteOrder}  />)}
           {accordionPanel("Create Customer Order", <CreateCustomerOrder create={this.createCustomerOrder} />)}
           {accordionPanel("Create Customer", <CreateCustomer username={this.currentUsername()} create={this.createCustomer} />)}
-          {accordionPanel("Edit Customer", <EditCustomer save={this.updateCustomer} retrieve={this.retrieveCustomer} results={this.state.retrieveCustomerResults} />)}
+          {accordionPanel("Edit Customer", <FindAndEditCustomer save={this.updateCustomer} retrieve={this.retrieveCustomer} results={this.state.retrieveCustomerResults} />)}
           {accordionPanel("Orders", <EntityList results={this.state.orders} fields={this.orderFields} delete={this.deleteOrder}  />)}
           {accordionPanel("All Raw", <JsonList results={this.state.allRaw} />)}
           {accordionPanel("Customers Raw", <JsonList results={this.state.customersRaw} />)}

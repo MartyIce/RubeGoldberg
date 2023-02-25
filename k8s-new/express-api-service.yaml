@@ -6,15 +6,17 @@ metadata:
     kompose.version: 1.27.0 (b0ed6a2c9)
   creationTimestamp: null
   labels:
-    io.kompose.service: react-admin-ui
-  name: react-admin-ui
+    io.kompose.service: express-api
+  name: express-api
 spec:
   ports:
-    - name: "3001"
-      port: 3001
+    - name: "3002"
+      port: 3002
       targetPort: 3000
+    - name: "9229"
+      port: 9229
+      targetPort: 9229
   selector:
-    io.kompose.service: react-admin-ui
-  type: LoadBalancer
+    io.kompose.service: express-api
 status:
   loadBalancer: {}

@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.27.0 (b0ed6a2c9)
   creationTimestamp: null
   labels:
-    io.kompose.service: express-api
-  name: express-api
+    io.kompose.service: dynamodb
+  name: dynamodb
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: express-api
+      io.kompose.service: dynamodb
   strategy:
     type: Recreate
   template:
@@ -22,18 +22,27 @@ spec:
         kompose.version: 1.27.0 (b0ed6a2c9)
       creationTimestamp: null
       labels:
-        io.kompose.service: express-api
+        io.kompose.service: dynamodb
     spec:
       containers:
         - args:
-            - npm
-            - start
-          image: rubegoldberg_express-api
-          imagePullPolicy: Never
-          name: express-api
+            - -jar
+            - DynamoDBLocal.jar
+            - -sharedDb
+            - -dbPath
+            - /home/dynamodblocal/data/
+          image: amazon/dynamodb-local
+          name: dynamodb
           ports:
-            - containerPort: 3000
-            - containerPort: 9229
+            - containerPort: 8000
           resources: {}
+          volumeMounts:
+            - mountPath: /home/dynamodblocal/data
+              name: dynamodb-claim0
+          workingDir: /home/dynamodblocal
       restartPolicy: Always
+      volumes:
+        - name: dynamodb-claim0
+          persistentVolumeClaim:
+            claimName: dynamodb-claim0
 status: {}

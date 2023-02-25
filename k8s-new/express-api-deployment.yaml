@@ -35,5 +35,17 @@ spec:
             - containerPort: 3000
             - containerPort: 9229
           resources: {}
+          volumeMounts:
+            - mountPath: /app
+              name: express-api-claim0
+            - mountPath: /app/node_modules
+              name: express-api-claim1
       restartPolicy: Always
+      volumes:
+        - name: express-api-claim0
+          persistentVolumeClaim:
+            claimName: express-api-claim0
+        - name: express-api-claim1
+          persistentVolumeClaim:
+            claimName: express-api-claim1
 status: {}

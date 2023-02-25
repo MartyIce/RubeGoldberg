@@ -33,22 +33,11 @@ spec:
               value: "true"
             - name: WDS_SOCKET_PORT
               value: "0"
-          image: react-admin-ui
+          image: rubegoldberg_react-admin-ui
+          imagePullPolicy: Never
           name: react-admin-ui
           ports:
             - containerPort: 3000
           resources: {}
-          volumeMounts:
-            - mountPath: /app
-              name: react-admin-ui-claim0
-            - mountPath: /app/node_modules
-              name: react-admin-ui-claim1
       restartPolicy: Always
-      volumes:
-        - name: react-admin-ui-claim0
-          persistentVolumeClaim:
-            claimName: react-admin-ui-claim0
-        - name: react-admin-ui-claim1
-          persistentVolumeClaim:
-            claimName: react-admin-ui-claim1
 status: {}

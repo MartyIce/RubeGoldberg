@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.27.0 (b0ed6a2c9)
   creationTimestamp: null
   labels:
-    io.kompose.service: express-api
-  name: express-api
+    io.kompose.service: react-admin-ui
+  name: react-admin-ui
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: express-api
+      io.kompose.service: react-admin-ui
   strategy:
     type: Recreate
   template:
@@ -22,18 +22,34 @@ spec:
         kompose.version: 1.27.0 (b0ed6a2c9)
       creationTimestamp: null
       labels:
-        io.kompose.service: express-api
+        io.kompose.service: react-admin-ui
     spec:
       containers:
         - args:
             - npm
             - start
-          image: rubegoldberg_express-api
+          env:
+            - name: CHOKIDAR_USEPOLLING
+              value: "true"
+            - name: WDS_SOCKET_PORT
+              value: "0"
+          image: rubegoldberg_react-admin-ui
           imagePullPolicy: Never
-          name: express-api
+          name: react-admin-ui
           ports:
             - containerPort: 3000
-            - containerPort: 9229
           resources: {}
+          volumeMounts:
+            - mountPath: /app
+              name: react-admin-ui-claim0
+            - mountPath: /app/node_modules
+              name: react-admin-ui-claim1
       restartPolicy: Always
+      volumes:
+        - name: react-admin-ui-claim0
+          persistentVolumeClaim:
+            claimName: react-admin-ui-claim0
+        - name: react-admin-ui-claim1
+          persistentVolumeClaim:
+            claimName: react-admin-ui-claim1
 status: {}

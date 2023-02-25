@@ -18,4 +18,29 @@ const labelize = (camelCase) => {
     return result.charAt(0).toUpperCase() + result.slice(1);
 }
 
-export { exec, labelize };
+const mapToArrayBased = (propBasedItems, propName) => {
+    const items = [];
+    if (propBasedItems) {
+      const keys = Object.keys(propBasedItems);
+      items.push(...keys.map(k => {
+        const ret = {
+          ...propBasedItems[k]
+        }
+        ret[propName] = k;
+        return ret;
+      }));
+    }
+    return items;
+  }
+
+  const mapToPropertyBased = (arrayBasedAddresses, propName) => {
+    const mappedAddresses = {};
+    arrayBasedAddresses.forEach(a => {
+      const name = a[propName];
+      delete a[propName];
+      mappedAddresses[name] = a;
+    });
+    return mappedAddresses;
+  }
+
+export { exec, labelize, mapToArrayBased, mapToPropertyBased };

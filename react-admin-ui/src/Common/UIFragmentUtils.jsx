@@ -15,13 +15,13 @@ const input = (label, name, addlElements, formState, disabled) => {
 }
 
 const submitBtn = (isSubmitting, label) => {
-  return <button type="submit" disabled={isSubmitting} className="btn btn-blue btn-submit">
+  return <button type="submit" disabled={isSubmitting} className="btn btn-blue">
       {label ?? 'Submit'}
     </button>
 }
 
 const btn = (disabled, label, onClick) => {
-  return <button type="button" disabled={disabled} className="btn btn-blue" onClick={onClick}>
+  return <button type="button" disabled={disabled} className="btn btn-blue" onClick={onClick} data-modal-target="defaultModal" data-modal-toggle="defaultModal" >
       {label}
     </button>;
 }
