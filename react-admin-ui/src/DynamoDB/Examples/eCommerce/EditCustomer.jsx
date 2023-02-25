@@ -7,17 +7,29 @@ class EditCustomer extends React.Component {
 
   constructor(props) {
     super(props);
-    const addresses = mapToArrayBased(props.customer.addresses);
+    const addresses = mapToArrayBased(props.customer.addresses, 'name') ?? [];
     this.state = {
       addresses: addresses,
     };
+    // console.log('EditCustomer.constructor', addresses);
   }
 
+  /*
   componentWillReceiveProps(props) {
     if(props.customer) {
-      const addresses = mapToArrayBased(props.customer.addresses, 'name');
+      const addresses = mapToArrayBased(props.customer.addresses, 'name') ?? [];
       this.setState({ ...this.state, addresses });
+      console.log('EditCustomer.componentWillReceiveProps', addresses);
     }
+  }
+  */
+
+  static getDerivedStateFromProps(props, state) {
+    console.log('EditCustomer.getDerivedStateFromProps', props, state);
+    const addresses = mapToArrayBased(props.customer.addresses, 'name') ?? [];
+    return {
+      addresses: addresses,
+    };
   }
 
   fields = {
@@ -40,7 +52,7 @@ class EditCustomer extends React.Component {
   }
 
   save = (values) => {
-    return this.props.save(values.username, values.name, this.mapToPropertyBased(this.state.addresses, 'name'));
+    return this.props.save(values.username, values.name, mapToPropertyBased(this.state.addresses, 'name'));
   }
 
   saveAddresses = (address, index) => {
@@ -67,7 +79,7 @@ class EditCustomer extends React.Component {
     return <div className="grid grid-cols-2 gap-4">
       <EditEntity entity={this.props.customer} fields={this.fields} save={this.save} />
       <EditEntityList 
-        entityList={this.state.addresses ?? []} 
+        entityList={this.state.addresses} 
         fields={this.addressFields} 
         save={(address, index) => this.saveAddresses(address, index)} 
         addNew={this.addAddress} 

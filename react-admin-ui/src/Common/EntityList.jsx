@@ -46,11 +46,11 @@ class EntityList extends React.Component {
           </tbody>
         </table>
         {
-          <Modal show={this.state.editEntity} onClose={() => this.setState({...this.state, entityEntity: null})}>
+          <Modal show={this.state.editEntity} onClose={() => this.setState({...this.state, editEntity: null})} size="5xl">
               <Modal.Header>
                 Edit
               </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className="overflow-scroll modal-restricted">
               {this.state.editEntity && this.props.edit(this.state.editEntity)}
             </Modal.Body>
           </Modal>

@@ -75,7 +75,7 @@ class ECommerceExample extends React.Component {
   }
 
   updateCustomer = (username, name, addresses) => {
-    this.setState({ errorText: '' });
+    this.setState({ ...this.state, errorText: '' });
     return this.eCommerceClient.updateCustomer(username, name, addresses,
       () => {
         this.retrieveCustomer(username);
@@ -88,7 +88,7 @@ class ECommerceExample extends React.Component {
   retrieveCustomer = (username) => {
     this.setState({ errorText: '' });
     return this.eCommerceClient.getCustomer(username,
-      (items) => this.setState({ retrieveCustomerResults: items }), this.error);
+      (items) => this.setState({ ...this.state, retrieveCustomerResults: items }), this.error);
   }
 
   retrieveCustomerOrders = (username) => {
