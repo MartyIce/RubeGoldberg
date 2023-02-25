@@ -9,6 +9,7 @@ import { Accordion } from "flowbite-react";
 import { accordionPanel } from '../../../Common/UIFragmentUtils'
 import EntityList from "../../../Common/EntityList";
 import JsonList from "../../../Common/JsonList";
+import EditEntity from "../../../Common/EditEntity"
 
 class ECommerceExample extends React.Component {
 
@@ -63,7 +64,7 @@ class ECommerceExample extends React.Component {
   }
 
   createCustomerOrder = (username, item_id, status, amount, number_items) => {
-    this.setState({ errorText: '' });
+    this.setState({ ...this.state, errorText: '' });
     return this.eCommerceClient.createCustomerOrder(username,
       {
         item_id: item_id,
@@ -73,6 +74,14 @@ class ECommerceExample extends React.Component {
       },
       () => this.refreshItems(), this.error);
   }
+  updateCustomerOrder = (customerOrder) => {
+    this.setState({ ...this.state, errorText: '' });
+
+    // TODO - need to provide customer username
+    return this.eCommerceClient.updateCustomerOrder(customerOrder,
+      () => this.refreshItems(), this.error);
+  }
+
 
   updateCustomer = (username, name, addresses) => {
     this.setState({ ...this.state, errorText: '' });
@@ -84,11 +93,15 @@ class ECommerceExample extends React.Component {
   }
 
   editCustomer = (customer) => <EditCustomer customer={customer} save={this.updateCustomer} />;
+  editOrder = (order) => <EditEntity entity={order} fields={this.orderFields} save={this.updateCustomerOrder}  />;
 
   retrieveCustomer = (username) => {
     this.setState({ errorText: '' });
     return this.eCommerceClient.getCustomer(username,
-      (items) => this.setState({ ...this.state, retrieveCustomerResults: items }), this.error);
+      (items) =>{
+        console.log('main.retrieveCustomer', items);
+        this.setState({ ...this.state, retrieveCustomerResults: items });
+      }, this.error);
   }
 
   retrieveCustomerOrders = (username) => {
@@ -107,7 +120,7 @@ class ECommerceExample extends React.Component {
 
   deleteOrder = (order) => {
     this.setState({ errorText: '' });
-    return this.eCommerceClient.deleteOrder(order.customer, order.orderId,
+    return this.eCommerceClient.deleteCustomerOrder(order.customer, order.orderId,
       () => {
         this.refreshItems();
         this.eCommerceClient.getCustomerOrders(order.customer,
@@ -145,7 +158,7 @@ class ECommerceExample extends React.Component {
           {accordionPanel("Create Customer Order", <CreateCustomerOrder create={this.createCustomerOrder} />)}
           {accordionPanel("Create Customer", <CreateCustomer username={this.currentUsername()} create={this.createCustomer} />)}
           {accordionPanel("Edit Customer", <FindAndEditCustomer save={this.updateCustomer} retrieve={this.retrieveCustomer} results={this.state.retrieveCustomerResults} />)}
-          {accordionPanel("Orders", <EntityList results={this.state.orders} fields={this.orderFields} delete={this.deleteOrder}  />)}
+          {accordionPanel("Orders", <EntityList results={this.state.orders} fields={this.orderFields} delete={this.deleteOrder}  edit={this.editOrder}  />)}
           {accordionPanel("All Raw", <JsonList results={this.state.allRaw} />)}
           {accordionPanel("Customers Raw", <JsonList results={this.state.customersRaw} />)}
           {accordionPanel("Orders Raw", <JsonList results={this.state.ordersRaw} />)}

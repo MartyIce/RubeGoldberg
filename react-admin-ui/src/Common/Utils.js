@@ -36,9 +36,10 @@ const mapToArrayBased = (propBasedItems, propName) => {
   const mapToPropertyBased = (arrayBasedAddresses, propName) => {
     const mappedAddresses = {};
     arrayBasedAddresses.forEach(a => {
-      const name = a[propName];
-      delete a[propName];
-      mappedAddresses[name] = a;
+      let clone = structuredClone(a);
+      const name = clone[propName];
+      delete clone[propName];
+      mappedAddresses[name] = clone;
     });
     return mappedAddresses;
   }

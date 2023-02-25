@@ -7,10 +7,13 @@ class EditEntity extends React.Component {
 
   constructor(props) {
     super(props);
-    this.fields = Object.keys(this.props.fields).map(f => { return {
+
+    let mappedFields = Array.isArray(this.props.fields) ? this.props.fields.reduce((a, v) => ({ ...a, [v]: v}), {})  : this.props.fields;
+
+    this.fields = Object.keys(mappedFields).map(f => { return {
       name: f,
       label: labelize(f),
-      disabled: this.props.fields[f].disabled
+      disabled: mappedFields[f].disabled
     }});
   }
 

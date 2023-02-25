@@ -10,8 +10,9 @@ class EditCustomer extends React.Component {
     const addresses = mapToArrayBased(props.customer.addresses, 'name') ?? [];
     this.state = {
       addresses: addresses,
+      lastCustomer: props.customer
     };
-    // console.log('EditCustomer.constructor', addresses);
+    console.log('EditCustomer.constructor', addresses);
   }
 
   /*
@@ -25,11 +26,14 @@ class EditCustomer extends React.Component {
   */
 
   static getDerivedStateFromProps(props, state) {
-    console.log('EditCustomer.getDerivedStateFromProps', props, state);
-    const addresses = mapToArrayBased(props.customer.addresses, 'name') ?? [];
-    return {
-      addresses: addresses,
-    };
+    if(props.customer !== state.lastCustomer) {
+      const addresses = mapToArrayBased(props.customer.addresses, 'name') ?? [];
+      return {
+        addresses: addresses,
+        lastCustomer: props.customer
+      };
+    }
+    return state;
   }
 
   fields = {
@@ -59,6 +63,7 @@ class EditCustomer extends React.Component {
     let addresses = this.state.addresses;
     addresses[index] = address;
     this.setState({ ...this.state, addresses })    
+    console.log('EditCustomer.saveAddresses', addresses);
     return this.props.save(this.props.customer.username, this.props.customer.name, mapToPropertyBased(addresses, 'name'));
   }
 

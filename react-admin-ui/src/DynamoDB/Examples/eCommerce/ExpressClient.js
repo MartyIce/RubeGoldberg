@@ -36,7 +36,7 @@ class ExpressClient {
       }
     );
   };
-  deleteOrder = (customerId, orderId) => {
+  deleteCustomerOrder = (customerId, orderId) => {
     return fetch(`${this.ch19Root}/customers/${customerId}/orders/${orderId}`,
       {
         method: 'DELETE'
@@ -60,6 +60,13 @@ class ExpressClient {
   postCustomerOrder = (username, customerOrder) => {
     return fetch(`${this.ch19Root}/customers/${username}/orders`, {
       method: 'POST',
+      headers: this.jsonHeaders,
+      body: JSON.stringify(customerOrder)
+    });
+  };
+  putCustomerOrder = (customerOrder) => {
+    return fetch(`${this.ch19Root}/orders/${customerOrder.orderId}/orders`, {
+      method: 'PUT',
       headers: this.jsonHeaders,
       body: JSON.stringify(customerOrder)
     });

@@ -209,7 +209,6 @@ router.delete('/customers/:username', async function (req, res, next) {
     });
 });
 
-
 router.post('/customers/:username/orders', async function (req, res, next) {
 
   const username = req.params.username;
@@ -305,6 +304,10 @@ router.get('/customers/:username/orders', async function (req, res, next) {
   });
 
   await execOrdersRet(getItems, req.query.raw, res);
+});
+
+router.put('/customers/:username/orders/:orderId', async function (req, res, next) {
+  // TODO
 });
 
 module.exports = router;
