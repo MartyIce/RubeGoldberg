@@ -26,8 +26,10 @@ class EditEntity extends React.Component {
           onSubmit={(values, { setSubmitting }) => {
             this.props.save(values).then(() => {
               setSubmitting(false);
+              if(this.props.saveComplete) this.props.saveComplete();
             }).catch(() => {
               setSubmitting(false);
+              if(this.props.saveComplete) this.props.saveComplete();
             });
           }}
         >

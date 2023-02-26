@@ -64,8 +64,8 @@ class ExpressClient {
       body: JSON.stringify(customerOrder)
     });
   };
-  putCustomerOrder = (customerOrder) => {
-    return fetch(`${this.ch19Root}/orders/${customerOrder.orderId}/orders`, {
+  putCustomerOrder = (username, customerOrder) => {
+    return fetch(`${this.ch19Root}/customers/${username}/orders/${customerOrder.orderId}`, {
       method: 'PUT',
       headers: this.jsonHeaders,
       body: JSON.stringify(customerOrder)

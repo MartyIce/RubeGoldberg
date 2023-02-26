@@ -18,6 +18,11 @@ class EntityList extends React.Component {
   edit = (e) => {
     this.setState({ ...this.state, editEntity: this.state.editEntity ? null : e });
   }
+
+  saveComplete = () => {
+    this.setState({ ...this.state, editEntity: null });
+  }
+
   render() {
     return (
       <div>
@@ -51,7 +56,7 @@ class EntityList extends React.Component {
                 Edit
               </Modal.Header>
             <Modal.Body className="overflow-scroll modal-restricted">
-              {this.state.editEntity && this.props.edit(this.state.editEntity)}
+              {this.state.editEntity && this.props.edit(this.state.editEntity, this.saveComplete)}
             </Modal.Body>
           </Modal>
         }

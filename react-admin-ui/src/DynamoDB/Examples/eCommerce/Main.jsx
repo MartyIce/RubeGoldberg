@@ -74,11 +74,10 @@ class ECommerceExample extends React.Component {
       },
       () => this.refreshItems(), this.error);
   }
+
   updateCustomerOrder = (customerOrder) => {
     this.setState({ ...this.state, errorText: '' });
-
-    // TODO - need to provide customer username
-    return this.eCommerceClient.updateCustomerOrder(customerOrder,
+    return this.eCommerceClient.updateCustomerOrder(customerOrder.customer, customerOrder,
       () => this.refreshItems(), this.error);
   }
 
@@ -93,7 +92,7 @@ class ECommerceExample extends React.Component {
   }
 
   editCustomer = (customer) => <EditCustomer customer={customer} save={this.updateCustomer} />;
-  editOrder = (order) => <EditEntity entity={order} fields={this.orderFields} save={this.updateCustomerOrder}  />;
+  editOrder = (order, saveComplete) => <EditEntity entity={order} fields={this.editOrderFields} save={this.updateCustomerOrder} saveComplete={saveComplete} />;
 
   retrieveCustomer = (username) => {
     this.setState({ errorText: '' });
@@ -147,6 +146,25 @@ class ECommerceExample extends React.Component {
   }
 
   orderFields = ['customer', 'orderId', 'createdAt', 'itemId', 'status', 'amount', 'numberItems'];
+  editOrderFields = {
+    customer: {      
+      disabled: true
+    },
+    orderId: {      
+      disabled: true
+    },
+    createdAt: {      
+      disabled: true
+    },
+    itemId: {      
+    },
+    status: {      
+    },
+    amount: {      
+    },
+    numberItems: {      
+    },
+  }
 
   render() {
     return (

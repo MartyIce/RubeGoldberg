@@ -307,7 +307,30 @@ router.get('/customers/:username/orders', async function (req, res, next) {
 });
 
 router.put('/customers/:username/orders/:orderId', async function (req, res, next) {
-  // TODO
+  console.log(`customer: ${req.params.username}`);
+  console.log(`orderId: ${req.params.orderId}`);
+  console.log(`body: ${JSON.stringify(req.body)}`);
+  const updateItem = new AWSDynamoDb.UpdateItemCommand({
+    TableName: eCommerceTableName,
+    Key: {
+      "PK": { S: `CUSTOMER#${req.params.username}` },
+      "SK": { S: `#ORDER#${req.params.orderId}` },
+    },
+    UpdateExpression: "set #itemid = :itemid, #status = :status, #amount = :amount, #numberitems = :numberitems",
+    ExpressionAttributeNames: {
+      '#itemid': 'ItemId',
+      '#status': 'Status',
+      '#amount': 'Amount',
+      '#numberitems': 'NumberItems',
+    }, ExpressionAttributeValues: {
+      ":itemid": { "S": req.body.itemId },
+      ":status": { "S": req.body.status },
+      ":amount": { "S": req.body.amount },
+      ":numberitems": { "N": req.body.numberItems },
+    },
+    ReturnValues: "ALL_NEW"
+  });
+  await execOrdersRet(updateItem, req.query.raw, res);
 });
 
 module.exports = router;
