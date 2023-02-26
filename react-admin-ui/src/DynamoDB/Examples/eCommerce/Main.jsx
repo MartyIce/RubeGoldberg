@@ -145,7 +145,7 @@ class ECommerceExample extends React.Component {
     },
   }
 
-  orderFields = ['customer', 'orderId', 'createdAt', 'itemId', 'status', 'amount', 'numberItems'];
+  orderFields = ['customer', 'orderId', 'createdAt', 'status', 'amount', 'numberItems'];
   editOrderFields = {
     customer: {      
       disabled: true
@@ -155,8 +155,6 @@ class ECommerceExample extends React.Component {
     },
     createdAt: {      
       disabled: true
-    },
-    itemId: {      
     },
     status: {      
     },

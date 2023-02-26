@@ -8,7 +8,7 @@ const KSUID = require('ksuid')
 
 eCommerceTableName = "ECommerceTable";
 
-mapItem = (raw, map) => {
+mapItem = (raw, map, skipCount) => {
   if (!raw) return {};
   let items = raw.Items;
   if (!items && raw.Attributes) {
@@ -16,7 +16,7 @@ mapItem = (raw, map) => {
   }
   if (!items) return {};
 
-  return items.map(i => map(i));
+  return items.slice(skipCount ?? 0).map(i => map(i));
 }
 
 mapCustomer = (raw) => {
@@ -36,12 +36,11 @@ mapOrder = (raw) => {
       customer: i.PK.S.replace("CUSTOMER#", ""),
       orderId: sOrBlank(i.OrderId),
       createdAt: sOrBlank(i.CreatedAt),
-      itemId: sOrBlank(i.ItemId),
       status: sOrBlank(i.Status),
       amount: sOrBlank(i.Amount),
       numberItems: nOrBlank(i.NumberItems),
     }
-  });
+  }, 1);
 }
 
 execCustomerRet = (cmd, raw, res) => {
@@ -86,6 +85,7 @@ customerByUsername = async (username, exec) => {
   });
   await ddbClient.send(getCustomer, exec);
 }
+
 // Get Customer By Username
 router.get('/customers/:username', async function (req, res, next) {
   await customerByUsername(req.params.username,
@@ -226,6 +226,7 @@ router.delete('/customers/:username', async function (req, res, next) {
     });
 });
 
+// Create customer order
 router.post('/customers/:username/orders', async function (req, res, next) {
 
   const username = req.params.username;
@@ -260,7 +261,6 @@ router.post('/customers/:username/orders', async function (req, res, next) {
               'SK': { 'S': `#ORDER#${orderId}` },
               'OrderId': { 'S': orderId },
               'CreatedAt': { 'S': new Date() },
-              'ItemId': { 'S': req.body.item_id },
               'Status': { 'S': req.body.status },
               'Amount': { 'S': req.body.amount },
               'NumberItems': { 'N': req.body.number_items }
@@ -279,6 +279,7 @@ router.post('/customers/:username/orders', async function (req, res, next) {
 
 });
 
+// get all orders
 router.get('/orders', async function (req, res, next) {
   const getItems = new AWSDynamoDb.ScanCommand({
     TableName: eCommerceTableName,
@@ -305,8 +306,13 @@ router.delete('/customers/:username/orders/:orderId', async function (req, res, 
   await execOrdersRet(deleteItem, req.query.raw, res);
 });
 
-// Returns customer record and first X orders (by date desc)
+// Returns first X orders (by date desc)
 router.get('/customers/:username/orders', async function (req, res, next) {
+
+  let limit = (req.query.orderCount ?? 5) + 1;
+
+  console.log(`limit: ${limit}`);
+
   const getItems = new AWSDynamoDb.QueryCommand({
     TableName: eCommerceTableName,
     KeyConditionExpression: '#pk = :pk',
@@ -317,7 +323,7 @@ router.get('/customers/:username/orders', async function (req, res, next) {
     ':pk': { 'S': `CUSTOMER#${req.params.username}` }
     },
     ScanIndexForward: false,
-    Limit: req.query.orderCount ?? 5  
+    Limit: limit
   });
 
   await execOrdersRet(getItems, req.query.raw, res);
@@ -335,7 +341,6 @@ router.put('/customers/:username/orders/:orderId', async function (req, res, nex
     `#ORDER#${req.params.orderId}`,
     req.body,
     { 
-      'ItemId': "S",
       'Status': "S",
       'Amount': "S",
       'NumberItems': "N",
@@ -348,14 +353,12 @@ router.put('/customers/:username/orders/:orderId', async function (req, res, nex
       "PK": { S: `CUSTOMER#${req.params.username}` },
       "SK": { S: `#ORDER#${req.params.orderId}` },
     },
-    UpdateExpression: "set #itemid = :itemid, #status = :status, #amount = :amount, #numberitems = :numberitems",
+    UpdateExpression: "set #status = :status, #amount = :amount, #numberitems = :numberitems",
     ExpressionAttributeNames: {
-      '#itemid': 'ItemId',
       '#status': 'Status',
       '#amount': 'Amount',
       '#numberitems': 'NumberItems',
     }, ExpressionAttributeValues: {
-      ":itemid": { "S": req.body.itemId },
       ":status": { "S": req.body.status },
       ":amount": { "S": req.body.amount },
       ":numberitems": { "N": req.body.numberItems },

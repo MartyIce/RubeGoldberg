@@ -16,22 +16,21 @@ class MainView extends React.Component {
     return (
       <div>
         <div>
-          <nav className="py-4">
-            <ul className="flex">
-              <li className="mr-6">
-                <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb">Tables</Link>
-              </li>
-              <li className="mr-6">
-                <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb/session-example">Sessions</Link>
-                </li>
-              <li className="mr-6">
-                <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb/ecommerce-example">eCommerce</Link>
-              </li>
-            </ul>
-          </nav>
-
-          <hr />
-
+          Welcome to my "sandbox implementation" of the examples from Alex DeBrie's "The DynamoDB Book".  
+          Click below for a variety of tools and implementations of those examples.
+        </div>
+        <div>
+        <ul class="list-disc">
+          <li>
+              <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb">Tables - lists tables in DynamoDB, provides crude method of adding another</Link>
+            </li>
+            <li>
+              <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb/session-example">Sessions - examples from Ch 18.3</Link>
+            </li>
+            <li>
+              <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb/ecommerce-example">eCommerce - examples from 19.3</Link>
+            </li>
+          </ul>
           <div className="py-4">
             <Outlet />
           </div>
