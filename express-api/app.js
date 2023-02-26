@@ -13,6 +13,7 @@ var ch19eCommerceRouter = require('./routes/dynamoDb/ch19.ecommerce');
 // Migration
 let SimpleMigrator = require('./migration/simpleMigrator');
 let migrator = new SimpleMigrator();
+
 migrator.migrate()
      .then(() => {  console.log('migrated') })
      .catch((reason) => { console.log(`error during migration: ${reason}`) });

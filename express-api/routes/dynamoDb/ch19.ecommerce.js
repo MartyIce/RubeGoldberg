@@ -3,6 +3,7 @@ var router = express.Router();
 var { ddbClient } = require('../../dynamodb/ddbClient');
 const AWSDynamoDb = require("@aws-sdk/client-dynamodb");
 var { execute, tryCatch, sOrBlank, nOrBlank } = require('./utils');
+var { buildUpdateCommand } = require('./dynamoUtils')
 const KSUID = require('ksuid')
 
 eCommerceTableName = "ECommerceTable";
@@ -136,7 +137,21 @@ router.put('/customers/:username', async function (req, res, next) {
 
   const username = req.body.username;
   const key = `CUSTOMER#${username}`;
-  const updateItem = new AWSDynamoDb.UpdateItemCommand({
+
+  const updateItem = buildUpdateCommand(
+    eCommerceTableName, key, key,
+    {
+      name: req.body.name,
+      addresses: JSON.stringify(req.body.addresses)
+    },
+    { 
+      'Name': "S",
+      'Addresses': "S",
+    }
+  );
+
+  /*
+  new AWSDynamoDb.UpdateItemCommand({
     TableName: eCommerceTableName,
     Key: {
       "PK": { "S": key },
@@ -152,6 +167,8 @@ router.put('/customers/:username', async function (req, res, next) {
     },
     ReturnValues: "ALL_NEW"
   });
+  */
+
   await execCustomerRet(updateItem, req.query.raw, res);
 });
 
@@ -307,10 +324,25 @@ router.get('/customers/:username/orders', async function (req, res, next) {
 });
 
 router.put('/customers/:username/orders/:orderId', async function (req, res, next) {
-  console.log(`customer: ${req.params.username}`);
-  console.log(`orderId: ${req.params.orderId}`);
-  console.log(`body: ${JSON.stringify(req.body)}`);
-  const updateItem = new AWSDynamoDb.UpdateItemCommand({
+
+  // console.log(`customer: ${req.params.username}\n`);
+  // console.log(`orderId: ${req.params.orderId}\n`);
+  // console.log(`body: ${JSON.stringify(req.body)}\n`);
+
+  const updateItem = buildUpdateCommand(
+    eCommerceTableName,
+    `CUSTOMER#${req.params.username}`,
+    `#ORDER#${req.params.orderId}`,
+    req.body,
+    { 
+      'ItemId': "S",
+      'Status': "S",
+      'Amount': "S",
+      'NumberItems': "N",
+    }
+  );
+  /*
+  new AWSDynamoDb.UpdateItemCommand({
     TableName: eCommerceTableName,
     Key: {
       "PK": { S: `CUSTOMER#${req.params.username}` },
@@ -330,6 +362,7 @@ router.put('/customers/:username/orders/:orderId', async function (req, res, nex
     },
     ReturnValues: "ALL_NEW"
   });
+  */
   await execOrdersRet(updateItem, req.query.raw, res);
 });
 
