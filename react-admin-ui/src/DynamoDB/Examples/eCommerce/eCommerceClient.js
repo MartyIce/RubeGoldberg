@@ -20,8 +20,20 @@ class eCommerceClient {
         return exec(this.expressClient.getOrders(), success, error);
     };
 
+    getOrder = (orderId, success, error) => {
+        return exec(this.expressClient.getOrder(orderId), success, error);
+    };
+
     getOrdersRaw = (success, error) => {
         return exec(this.expressClient.getOrdersRaw(), success, error);
+    };
+
+    getOrderItems = (success, error) => {
+        return exec(this.expressClient.getOrderItems(), success, error);
+    };
+
+    getOrderItemsRaw = (success, error) => {
+        return exec(this.expressClient.getOrderItemsRaw(), success, error);
     };
 
     createCustomer = (username, email, name, success, error) => {
@@ -56,16 +68,20 @@ class eCommerceClient {
         return exec(this.expressClient.deleteCustomer(username), success, error);
     };
 
-    deleteCustomerOrder = (customerId, orderId, success, error) => {
-        return exec(this.expressClient.deleteCustomerOrder(customerId, orderId), success, error);
+    deleteOrder = (orderId, success, error) => {
+        return exec(this.expressClient.deleteCustomerOrder(orderId), success, error);
     };
 
-    updateCustomerOrder = (username, customerOrder, success, error) => {
-        return exec(this.expressClient.putCustomerOrder(username, customerOrder), success, error);
+    updateOrder = (customerOrder, success, error) => {
+        return exec(this.expressClient.putOrder(customerOrder), success, error);
     };
 
     createCustomerOrder = (username, customerOrder, success, error) => {
         return exec(this.expressClient.postCustomerOrder(username, customerOrder), success, error);
+    };
+
+    createOrderItem = (orderId, orderItem, success, error) => {
+        return exec(this.expressClient.postOrderItem(orderId, orderItem), success, error);
     };
 }
 

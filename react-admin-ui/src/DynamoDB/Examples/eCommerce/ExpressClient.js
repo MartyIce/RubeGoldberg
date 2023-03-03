@@ -20,8 +20,17 @@ class ExpressClient {
   getOrders = () => {
     return fetch(`${this.ch19Root}/orders`);
   };
+  getOrder = (orderId) => {
+    return fetch(`${this.ch19Root}/orders/${orderId}`);
+  };
   getOrdersRaw = () => {
     return fetch(`${this.ch19Root}/orders?raw=true`);
+  };
+  getOrderItems = () => {
+    return fetch(`${this.ch19Root}/orderitems`);
+  };
+  getOrderItemsRaw = () => {
+    return fetch(`${this.ch19Root}/orderitems?raw=true`);
   };
   getCustomer = (username) => {
     return fetch(`${this.ch19Root}/customers/${username}`);
@@ -36,8 +45,8 @@ class ExpressClient {
       }
     );
   };
-  deleteCustomerOrder = (customerId, orderId) => {
-    return fetch(`${this.ch19Root}/customers/${customerId}/orders/${orderId}`,
+  deleteCustomerOrder = (orderId) => {
+    return fetch(`${this.ch19Root}/orders/${orderId}`,
       {
         method: 'DELETE'
       }
@@ -64,11 +73,18 @@ class ExpressClient {
       body: JSON.stringify(customerOrder)
     });
   };
-  putCustomerOrder = (username, customerOrder) => {
-    return fetch(`${this.ch19Root}/customers/${username}/orders/${customerOrder.orderId}`, {
+  putOrder = (customerOrder) => {
+    return fetch(`${this.ch19Root}/orders/${customerOrder.orderId}`, {
       method: 'PUT',
       headers: this.jsonHeaders,
       body: JSON.stringify(customerOrder)
+    });
+  };
+  postOrderItem = (orderId, orderItem) => {
+    return fetch(`${this.ch19Root}/orders/${orderId}/orderItems`, {
+      method: 'POST',
+      headers: this.jsonHeaders,
+      body: JSON.stringify(orderItem)
     });
   };
 }

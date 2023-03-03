@@ -6,12 +6,19 @@ class EntityList extends React.Component {
   thClassName = "bg-blue-100 border text-left px-8 py-4";
   tdClassName = "border px-8 py-4";
 
-  fields = Array.isArray(this.props.fields) ? this.props.fields : Object.keys(this.props.fields);
-
   constructor(props) {
     super(props);
+
+    let fields = [];
+    if(this.props.fields) {
+      fields = Array.isArray(this.props.fields) ? this.props.fields : Object.keys(this.props.fields);
+    } else if(this.props.results && this.props.results.length > 0) {
+      fields = Object.keys(this.props.results[0])
+    }
+  
     this.state = {
       editEntity: null,
+      fields: fields
     };
   }
 
@@ -29,23 +36,31 @@ class EntityList extends React.Component {
         <table className="table-auto shadow-lg bg-white">
           <thead>
             <tr>
-              {this.fields.map((f, i) => <th className={this.thClassName} key={`Entity_List_Header${i}`}>{f}</th>)}
+              {this.state.fields.map((f, i) => <th className={this.thClassName} key={`Entity_List_Header${i}`}>{f}</th>)}
+              {this.props.delete && 
               <th className={this.thClassName} key={`Entity_List_Header_delete`}></th>
+              }
+              {this.props.edit && 
               <th className={this.thClassName} key={`Entity_List_Header_edit`}></th>
+              }
             </tr>
           </thead>
           <tbody>
             {this.props.results && this.props.results.map((t, i) =>
               // eslint-disable-next-line jsx-a11y/anchor-is-valid
               <tr key={`Entity_List${i}`} >
-                {this.fields.map(f =>
+                {this.state.fields.map(f =>
                   <td className={this.tdClassName} key={`Entity_List${i}_${f}`} onClick={() => this.props.select ? this.props.select(t) : () => { }}>{t[f]}</td>)}
+                {this.props.delete && 
                 <td className={this.tdClassName} key={`Entity_List${i}_delete`}>
                   {btn(false, 'Delete', () => this.props.delete(t))}
                 </td>
-                <td className={this.tdClassName} key={`Entity_List${i}_edit`}>
-                  {btn(false, 'Edit', () => this.edit(t))}
+                }
+                {this.props.edit && 
+                  <td className={this.tdClassName} key={`Entity_List${i}_edit`}>
+                  {this.props.edit && btn(false, 'Edit', () => this.edit(t))}
                 </td>
+                }
               </tr>
             )}
           </tbody>

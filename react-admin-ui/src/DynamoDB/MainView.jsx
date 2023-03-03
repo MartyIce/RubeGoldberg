@@ -20,7 +20,7 @@ class MainView extends React.Component {
           Click below for a variety of tools and implementations of those examples.
         </div>
         <div>
-        <ul class="list-disc">
+        <ul className="list-disc">
           <li>
               <Link className="text-blue-500 hover:text-blue-800" to="/dynamodb">Tables - lists tables in DynamoDB, provides crude method of adding another</Link>
             </li>

@@ -7,6 +7,14 @@
         {
             "AttributeName": "SK",
             "AttributeType": "S"
+        },
+        {
+            "AttributeName": "GSIPK",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "GSISK",
+            "AttributeType": "S"
         }
     ],
     "KeySchema": [
@@ -23,6 +31,28 @@
         "ReadCapacityUnits": 5,
         "WriteCapacityUnits": 5
     },
+    "GlobalSecondaryIndexes": [
+        {
+            "IndexName": "GSI1",
+            "KeySchema": [
+                {
+                    "AttributeName": "GSIPK",
+                    "KeyType": "HASH"
+                },
+                {
+                    "AttributeName": "GSISK",
+                    "KeyType": "RANGE"
+                }
+            ],
+            "Projection": {
+                "ProjectionType": "ALL"
+            },
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": 5,
+                "WriteCapacityUnits": 5
+            }
+        }
+    ],
     "TableName": "ECommerceTable",
     "TimeToLiveSpecification": {
         "AttributeName": "TTL",
