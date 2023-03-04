@@ -23,9 +23,21 @@ tryCatch = async function (action, res) {
 sOrBlank = (field) => field ? field.S : '';
 nOrBlank = (field) => field ? field.N : '';
 
+mapItem = (raw, map, skipCount) => {
+  if (!raw) return {};
+  let items = Array.isArray(raw) ? raw : raw.Items;
+  if (!items && raw.Attributes) {
+    items = [raw.Attributes];
+  }
+  if (!items) return {};
+
+  return items.slice(skipCount ?? 0).map(i => map(i));
+}
+
 module.exports = {
   execute: execute,
   tryCatch: tryCatch,
   sOrBlank: sOrBlank,
-  nOrBlank: nOrBlank
+  nOrBlank: nOrBlank,
+  mapItem: mapItem
 };

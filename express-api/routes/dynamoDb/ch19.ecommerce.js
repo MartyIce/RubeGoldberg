@@ -2,22 +2,11 @@ var express = require('express');
 var router = express.Router();
 var { ddbClient } = require('../../dynamodb/ddbClient');
 const AWSDynamoDb = require("@aws-sdk/client-dynamodb");
-var { execute, tryCatch, sOrBlank, nOrBlank } = require('./utils');
+var { execute, tryCatch, sOrBlank, nOrBlank, mapItem } = require('./utils');
 var { buildUpdateCommand } = require('./dynamoUtils')
 const KSUID = require('ksuid')
 
 eCommerceTableName = "ECommerceTable";
-
-mapItem = (raw, map, skipCount) => {
-  if (!raw) return {};
-  let items = Array.isArray(raw) ? raw : raw.Items;
-  if (!items && raw.Attributes) {
-    items = [raw.Attributes];
-  }
-  if (!items) return {};
-
-  return items.slice(skipCount ?? 0).map(i => map(i));
-}
 
 mapCustomer = (raw) => {
   return mapItem(raw, (i) => {

@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 var dynamodbTablesRouter = require('./routes/dynamoDb/schema');
 var ch18SessionRouter = require('./routes/dynamoDb/ch18.session');
 var ch19eCommerceRouter = require('./routes/dynamoDb/ch19.ecommerce');
+var ch20BigTimeDeals = require('./routes/dynamoDb/ch20.bigtimedeals');
 
 // Migration
 let SimpleMigrator = require('./migration/simpleMigrator');
@@ -34,5 +35,6 @@ app.use('/users', usersRouter);
 app.use('/dynamodb/tables', dynamodbTablesRouter);
 app.use('/dynamodb/ch18/sessions', ch18SessionRouter);
 app.use('/dynamodb/ch19/ecommerce', ch19eCommerceRouter);
+app.use('/dynamodb/ch20/bigtimedeals', ch20BigTimeDeals);
 
 module.exports = app;

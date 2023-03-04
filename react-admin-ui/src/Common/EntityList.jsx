@@ -6,20 +6,33 @@ class EntityList extends React.Component {
   thClassName = "bg-blue-100 border text-left px-8 py-4";
   tdClassName = "border px-8 py-4";
 
+  static buildFields(props) {
+    let fields = [];
+    if(props.fields) {
+      fields = Array.isArray(props.fields) ? props.fields : Object.keys(props.fields);
+    } else if(props.results && props.results.length > 0) {
+      fields = Object.keys(props.results[0])
+    }
+    return fields
+  }
+
   constructor(props) {
     super(props);
-
-    let fields = [];
-    if(this.props.fields) {
-      fields = Array.isArray(this.props.fields) ? this.props.fields : Object.keys(this.props.fields);
-    } else if(this.props.results && this.props.results.length > 0) {
-      fields = Object.keys(this.props.results[0])
-    }
   
     this.state = {
       editEntity: null,
-      fields: fields
+      fields: EntityList.buildFields(this.props)
     };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if(state.fields.length === 0) {
+      return {
+        editEntity: null,
+        fields: EntityList.buildFields(props)
+      };
+    }
+    return state;
   }
 
   edit = (e) => {
