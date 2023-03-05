@@ -334,6 +334,7 @@ router.delete('/orders/:orderId', async function (req, res, next) {
   const deleteItem = new AWSDynamoDb.DeleteItemCommand({
     TableName: eCommerceTableName,
     Key: {
+      // TODO - need to fix
       "PK": { S: `CUSTOMER#${req.params.username}` },
       "SK": { S: `#ORDER#${req.params.orderId}` },
     },

@@ -15,4 +15,13 @@ const get = (root, resource) => {
   return fetch(`${root}/${resource}`);
 }
 
-export { post, get };
+const del = (root, resource) => {
+  return fetch(`${root}/${resource}`,
+    {
+      method: 'DELETE'
+    }
+  );
+};
+
+
+export { post, get, del };

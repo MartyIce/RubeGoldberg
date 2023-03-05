@@ -74,4 +74,17 @@ router.post('/deals', async function (req, res, next) {
   await execDealRet(putItem, req.query.raw, res);
 });
 
+// DELETE Deal by id
+router.delete('/deals/:dealId', async function (req, res, next) {
+  const key = `DEAL#${req.params.dealId}`;
+  const deleteItem = new AWSDynamoDb.DeleteItemCommand({
+    TableName: tableName,
+    Key: {
+      "PK": { S: key },
+      "SK": { S: key },
+    },
+  });
+
+  await execDealRet(deleteItem, req.query.raw, res);
+});
 module.exports = router;
