@@ -149,7 +149,7 @@ class ECommerceExample extends React.Component {
 
   deleteOrder = (order) => {
     this.setState({ errorText: '' });
-    return this.eCommerceClient.deleteOrder(order.orderId,
+    return this.eCommerceClient.deleteOrder(order.customer, order.orderId,
       () => {
         this.refreshItems();
         this.eCommerceClient.getCustomerOrders(order.customer,

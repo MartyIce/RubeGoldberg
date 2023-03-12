@@ -68,8 +68,8 @@ class eCommerceClient {
         return exec(this.expressClient.deleteCustomer(username), success, error);
     };
 
-    deleteOrder = (orderId, success, error) => {
-        return exec(this.expressClient.deleteCustomerOrder(orderId), success, error);
+    deleteOrder = (username, orderId, success, error) => {
+        return exec(this.expressClient.deleteCustomerOrder(username, orderId), success, error);
     };
 
     updateOrder = (customerOrder, success, error) => {

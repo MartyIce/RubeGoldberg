@@ -50,7 +50,8 @@ router.get('/deals', async function (req, res, next) {
 router.post('/deals', async function (req, res, next) {
 
   const dealId = await (await KSUID.random()).string;
-
+  const createdDate = new Date();
+  const truncatedTimestamp = createdDate.toLocaleDateString("en-US");
   const putItem = new AWSDynamoDb.TransactWriteItemsCommand({
     TransactItems: [
       {
@@ -59,19 +60,42 @@ router.post('/deals', async function (req, res, next) {
           Item: {
             'PK': { 'S': `DEAL#${dealId}` },
             'SK': { 'S': `DEAL#${dealId}` },
+            'GSIPK': { 'S': `DEALS#${truncatedTimestamp}` },
+            'GSISK': { 'S': `DEAL#${dealId}` },
             'DealId': { 'S': dealId },
             'Title': { 'S': req.body.title },
             'Link': { 'S': req.body.link },
             'Price': { 'N': req.body.price },
             'Category': { 'S': req.body.category },
             'Brand': { 'S': req.body.brand },
-            'CreatedAt': { 'S': new Date() }
+            'CreatedAt': { 'S': createdDate }
           },
         }
       }
     ]
   });
   await execDealRet(putItem, req.query.raw, res);
+});
+
+router.get('/deals/:date', async function (req, res, next) {
+  const truncatedTimestamp = new Date(req.params.date).toLocaleDateString("en-US");
+  const cmd = {
+    TableName: tableName,
+    IndexName: 'GSI1',
+    KeyConditionExpression: '#gsipk = :gsipk AND #gsisk < :gsisk',
+    ExpressionAttributeNames: {
+      '#gsipk': 'GSIPK',
+      '#gsisk': 'GSISK'
+    },
+    ExpressionAttributeValues: {
+      ':gsipk': { 'S': `DEALS#${truncatedTimestamp}` },
+      ':gsisk': { 'S': `DEAL#${req.params.last_seen ?? 'ZZZZZ'}` }
+    },
+    ScanIndexForward: false,
+    Limit: req.params.limit ?? 25
+  };
+  const getItems = new AWSDynamoDb.QueryCommand(cmd);
+  await execDealRet(getItems, req.query.raw, res);
 });
 
 // DELETE Deal by id
@@ -87,4 +111,5 @@ router.delete('/deals/:dealId', async function (req, res, next) {
 
   await execDealRet(deleteItem, req.query.raw, res);
 });
+
 module.exports = router;

@@ -35,7 +35,15 @@ class bigTimeDealsService {
     return this.bigTimeDealsClient.deleteDeal(deal.id,
       () => {
         this.refreshItems();
-    }, this.error);
+      }, this.error);
+  }
+
+  getDealsForDate = (date) => {
+    this.error('');
+    return this.bigTimeDealsClient.getDealsForDate(date, undefined, undefined,
+      (items) => {
+        this.component.setState({ dealsForDate: items })
+      }, this.error);
   }
 
   blankDeal = {

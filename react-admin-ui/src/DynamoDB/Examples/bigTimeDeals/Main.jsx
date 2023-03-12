@@ -6,6 +6,7 @@ import JsonList from "../../../Common/JsonList";
 import ErrorMsg from "../../../Common/ErrorMsg"
 import CreateEntity from "../../../Common/CreateEntity";
 import bigTimeDealsService from './bigTimeDealsService'
+import DealsForDate from './DealsForDate'
 
 class BigTimeDealsExample extends React.Component {
 
@@ -24,6 +25,7 @@ class BigTimeDealsExample extends React.Component {
         {this.state.errorText && <ErrorMsg errorText={this.state.errorText} hideError={() => this.bigTimeDealsService.error('')} />}
         <Accordion alwaysOpen={true}>
           {accordionPanel("Deals", <EntityList results={this.state.deals}  delete={this.bigTimeDealsService.deleteDeal}/> )}
+          {accordionPanel("DealsForDate", <DealsForDate retrieve={this.bigTimeDealsService.getDealsForDate} results={this.state.dealsForDate}/> )}
 
           {accordionPanel("Create Deal", <CreateEntity entity={this.bigTimeDealsService.blankDeal} create={this.bigTimeDealsService.createDeal}/>)}
 

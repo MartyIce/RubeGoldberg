@@ -45,7 +45,7 @@ class EntityList extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="entity-list">
         <table className="table-auto shadow-lg bg-white">
           <thead>
             <tr>

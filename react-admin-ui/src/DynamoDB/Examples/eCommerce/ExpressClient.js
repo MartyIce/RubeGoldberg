@@ -45,8 +45,8 @@ class ExpressClient {
       }
     );
   };
-  deleteCustomerOrder = (orderId) => {
-    return fetch(`${this.ch19Root}/orders/${orderId}`,
+  deleteCustomerOrder = (username, orderId) => {
+    return fetch(`${this.ch19Root}/customers/${username}/orders/${orderId}`,
       {
         method: 'DELETE'
       }

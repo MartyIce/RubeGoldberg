@@ -330,7 +330,7 @@ router.get('/orders/:orderId', async function (req, res, next) {
 });
 
 // DELETE Order by id
-router.delete('/orders/:orderId', async function (req, res, next) {
+router.delete('/customers/:username/orders/:orderId', async function (req, res, next) {
   const deleteItem = new AWSDynamoDb.DeleteItemCommand({
     TableName: eCommerceTableName,
     Key: {
