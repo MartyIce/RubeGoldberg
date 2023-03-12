@@ -9,7 +9,7 @@ const KSUID = require('ksuid')
 tableName = "BigTimeDeals";
 
 mapDeal = (raw) => {
-  return mapItem(raw, (i) => {
+  var items = mapItem(raw, (i) => {
     return {
       id: sOrBlank(i.DealId),
       createdAt: sOrBlank(i.CreatedAt),
@@ -20,6 +20,12 @@ mapDeal = (raw) => {
       brand: sOrBlank(i.Brand)
     }
   });
+
+
+  return {
+    items: items,
+    last_evaluated_key: raw.LastEvaluatedKey?.GSISK.S
+  };
 }
 
 execDealRet = (cmd, raw, res) => {
@@ -92,7 +98,7 @@ router.get('/deals/:date', async function (req, res, next) {
       ':gsisk': { 'S': `DEAL#${req.params.last_seen ?? 'ZZZZZ'}` }
     },
     ScanIndexForward: false,
-    Limit: req.params.limit ?? 25
+    Limit: req.params.limit ?? 5
   };
   const getItems = new AWSDynamoDb.QueryCommand(cmd);
   await execDealRet(getItems, req.query.raw, res);

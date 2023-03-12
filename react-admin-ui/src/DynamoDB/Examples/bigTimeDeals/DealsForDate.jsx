@@ -11,7 +11,7 @@ class DealsForDate extends React.Component {
   displayResults = () => this.props.results &&
     <div>
       Deals:
-      <EntityList results={this.props.results} />
+      <EntityList results={this.props.results.items} />
     </div>
 
   render() {

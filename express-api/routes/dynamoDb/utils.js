@@ -34,10 +34,13 @@ mapItem = (raw, map, skipCount) => {
   return items.slice(skipCount ?? 0).map(i => map(i));
 }
 
+camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+
 module.exports = {
   execute: execute,
   tryCatch: tryCatch,
   sOrBlank: sOrBlank,
   nOrBlank: nOrBlank,
-  mapItem: mapItem
+  mapItem: mapItem,
+  camelToSnakeCase: camelToSnakeCase
 };
